@@ -24,7 +24,7 @@ mapString = "#######"
 class mapElement(pygame.sprite.Sprite):
     def __init__(self):
         super(mapElement, self).__init__()
-        self.surf = pygame.image.load("taxi_assets\house1.png").convert()
+        self.surf = pygame.image.load("taxi_assets\brick-texture-png-26.png").convert()
         self.surf = pygame.transform.scale(self.surf, (100, 100))
         self.surf.set_colorkey((255, 255, 255), RLEACCEL)
     
