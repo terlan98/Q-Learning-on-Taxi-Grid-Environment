@@ -15,9 +15,35 @@ from pygame.locals import (
     QUIT,
 )
 
+mapString = "#######"
+
+
+
+
+
+class mapElement(pygame.sprite.Sprite):
+    def __init__(self):
+        super(mapElement, self).__init__()
+        self.surf = pygame.image.load("taxi_assets\house1.png").convert()
+        self.surf = pygame.transform.scale(self.surf, (100, 100))
+        self.surf.set_colorkey((255, 255, 255), RLEACCEL)
+    
+    def setPosition(self,corX,corY):
+        self.rect = self.surf.get_rect(center=(corX+(self.surf.get_width()/2), corY + (self.surf.get_height()/2)))
+
+
+    
+
+        
+    
+
+
+
+
+
 # Define constants for the screen width and height
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+SCREEN_WIDTH = 700
+SCREEN_HEIGHT = 700
 
 # Define a player object by extending pygame.sprite.Sprite
 # The surface drawn on the screen is now an attribute of 'player'
@@ -32,13 +58,13 @@ class Player(pygame.sprite.Sprite):
     # Move the sprite based on user keypresses
     def update(self, pressed_keys):
         if pressed_keys[K_UP]:
-            self.rect.move_ip(0, -1)
+            self.rect.move_ip(0, -100)
         if pressed_keys[K_DOWN]:
-            self.rect.move_ip(0, 1)
+            self.rect.move_ip(0, 100)
         if pressed_keys[K_LEFT]:
-            self.rect.move_ip(-1, 0)
+            self.rect.move_ip(-100, 0)
         if pressed_keys[K_RIGHT]:
-            self.rect.move_ip(1, 0)
+            self.rect.move_ip(100, 0)
         
          # Keep player on the screen
         if self.rect.left < 0:
@@ -86,21 +112,26 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 ADDENEMY = pygame.USEREVENT + 1
 pygame.time.set_timer(ADDENEMY, 250)
 
-# Instantiate player. Right now, this is just a rectangle.
+# Instantiate player and map
 player = Player()
+
 
 # Create groups to hold enemy sprites and all sprites
 # - enemies is used for collision detection and position updates
 # - all_sprites is used for rendering
 enemies = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
+
 all_sprites.add(player)
+
 
 clock = pygame.time.Clock()
 
 # Variable to keep the main loop running
 running = True
 
+count = 0
+cPosition = 0;
 # Main loop
 while running:
     # for loop through the event queue
@@ -116,13 +147,24 @@ while running:
             running = False
 
         # Add a new enemy?
-        elif event.type == ADDENEMY:
-            # Create the new enemy and add it to sprite groups
-            new_enemy = Enemy()
-            enemies.add(new_enemy)
-            all_sprites.add(new_enemy)
+        # elif event.type == ADDENEMY:
+        #     # Create the new enemy and add it to sprite groups
+        #     new_enemy = Enemy()
+        #     enemies.add(new_enemy)
+        #     all_sprites.add(new_enemy)
+
+    for i in mapString:
+        if i == "#" :
+            brick = mapElement()
+            brick.setPosition(cPosition,0)
+            all_sprites.add(brick)
+
+        cPosition = cPosition + 100;
 
 
+
+
+    
     # Get all the keys currently pressed
     pressed_keys = pygame.key.get_pressed()
 
@@ -139,10 +181,10 @@ while running:
     
     # Check if any enemies have collided with the player
     if pygame.sprite.spritecollideany(player, enemies):
-        # If so, then remove the player and stop the loop
-        player.kill()
+       # If so, then remove the player and stop the loop
+        new_enemy.kill()
         running = False
 
     # Update the display
     pygame.display.flip()
-    clock.tick(200)
+    clock.tick(1000)
