@@ -1,6 +1,7 @@
 # Import the pygame module
 import pygame
 import random
+import time
 
 # Import pygame.locals for easier access to key coordinates
 # Updated to conform to flake8 and black standards
@@ -15,23 +16,35 @@ from pygame.locals import (
     QUIT,
 )
 
-mapString = "#######"
+mapArray = [  # original
+	["#", "#", "#", "#", "#", "#", "#"],
+	["#", "=", "=", "#", "=", "=", "#"],
+	["#", "=", "=", "#", "F", "=", "#"],
+	["#", "=", "=", "=", "=", "=", "#"],
+	["#", "=", "=", "T", "=", "=", "#"],
+	["#", "S", "=", "=", "=", "=", "#"],
+	["#", "#", "#", "#", "#", "#", "#"]
+]
 
 
 
 
 
-class mapElement(pygame.sprite.Sprite):
-    def __init__(self):
-        super(mapElement, self).__init__()
-        self.surf = pygame.image.load("taxi_assets\\brick_wall.png").convert()
+
+
+class MapElement(pygame.sprite.Sprite):
+    def __init__(self, imagePath):
+        super(MapElement, self).__init__()
+        self.surf = pygame.image.load(imagePath).convert_alpha()
         self.surf = pygame.transform.scale(self.surf, (100, 100))
         self.surf.set_colorkey((255, 255, 255), RLEACCEL)
     
     def setPosition(self,corX,corY):
         self.rect = self.surf.get_rect(center=(corX+(self.surf.get_width()/2), corY + (self.surf.get_height()/2)))
 
-
+    def scale(self,a,b):
+        self.surf = pygame.transform.scale(self.surf, (a, b))
+        
     
 
         
@@ -50,8 +63,8 @@ SCREEN_HEIGHT = 700
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super(Player, self).__init__()
-        self.surf = pygame.image.load("taxi_assets/taxiCar.png").convert()
-        self.surf = pygame.transform.scale(self.surf, (75, 75))
+        self.surf = pygame.image.load("taxi_assets/taxiCar.png").convert_alpha()
+        self.surf = pygame.transform.scale(self.surf, (100, 100))
         self.surf.set_colorkey((255, 255, 255), RLEACCEL)
         self.rect = self.surf.get_rect()
 
@@ -76,41 +89,18 @@ class Player(pygame.sprite.Sprite):
         if self.rect.bottom >= SCREEN_HEIGHT:
             self.rect.bottom = SCREEN_HEIGHT
 
-# Define the enemy object by extending pygame.sprite.Sprite
-# Instead of a surface, use an image for a better-looking sprite
-class Enemy(pygame.sprite.Sprite):
-    def __init__(self):
-        super(Enemy, self).__init__()
-        self.surf = pygame.image.load("taxi_assets\customer.png").convert()
-        self.surf = pygame.transform.scale(self.surf, (75, 75))
 
-        self.surf.set_colorkey((255, 255, 255), RLEACCEL)
-        # The starting position is randomly generated, as is the speed
-        self.rect = self.surf.get_rect(
-            center=(
-                random.randint(SCREEN_WIDTH + 20, SCREEN_WIDTH + 100),
-                random.randint(0, SCREEN_HEIGHT),
-            )
-        )
-        self.speed = 1
-
-    # Move the sprite based on speed
-    # Remove the sprite when it passes the left edge of the screen
-    def update(self):
-        self.rect.move_ip(-self.speed, 0)
-        if self.rect.right < 0:
-            self.kill()
 
 # Initialize pygame
 pygame.init()
+
+
+
 
 # Create the screen object
 # The size is determined by the constant SCREEN_WIDTH and SCREEN_HEIGHT
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
-# Create a custom event for adding a new enemy
-ADDENEMY = pygame.USEREVENT + 1
-pygame.time.set_timer(ADDENEMY, 250)
 
 # Instantiate player and map
 player = Player()
@@ -119,7 +109,6 @@ player = Player()
 # Create groups to hold enemy sprites and all sprites
 # - enemies is used for collision detection and position updates
 # - all_sprites is used for rendering
-enemies = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 
 all_sprites.add(player)
@@ -130,8 +119,53 @@ clock = pygame.time.Clock()
 # Variable to keep the main loop running
 running = True
 
+
+
 count = 0
-cPosition = 0;
+xPosition = 0
+yPosition = 0
+
+
+    
+for i in range(len(mapArray)):
+    for j in range(len(mapArray[i])):
+        print(mapArray[i][j], xPosition, yPosition ,end=" ")
+        if mapArray[i][j] == "#" :
+            if i == 0 or i == 6 or j == 0 or j == 6:
+                element = MapElement("taxi_assets/brick_wall.png")
+            else:
+                element = MapElement("taxi_assets/house1.png")
+            
+            element.setPosition(xPosition,yPosition)
+            all_sprites.add(element)
+                    
+
+        if mapArray[i][j] == "T" :
+            element = MapElement("taxi_assets/taxiCar.png")
+            element.setPosition(xPosition,yPosition)
+            all_sprites.add(element)
+
+        if mapArray[i][j] == "S" :
+            element = MapElement("taxi_assets/samirMlm.png")
+            element.setPosition(xPosition,yPosition)
+            all_sprites.add(element)
+
+        
+        if mapArray[i][j] == "F" :
+            element = MapElement("taxi_assets/destination.png")
+            element.setPosition(xPosition,yPosition)
+            all_sprites.add(element)
+        
+        
+
+        
+        xPosition = xPosition + 100
+    xPosition = 0
+    yPosition = yPosition + 100
+    print()
+
+
+
 # Main loop
 while running:
     # for loop through the event queue
@@ -146,23 +180,9 @@ while running:
         elif event.type == QUIT:
             running = False
 
-        # Add a new enemy?
-        # elif event.type == ADDENEMY:
-        #     # Create the new enemy and add it to sprite groups
-        #     new_enemy = Enemy()
-        #     enemies.add(new_enemy)
-        #     all_sprites.add(new_enemy)
-
-    for i in mapString:
-        if i == "#" :
-            brick = mapElement()
-            brick.setPosition(cPosition,0)
-            all_sprites.add(brick)
-
-        cPosition = cPosition + 100;
 
 
-
+    
 
     
     # Get all the keys currently pressed
@@ -170,21 +190,17 @@ while running:
 
     # Update the player and enemies sprite based on user keypresses
     player.update(pressed_keys)
-    enemies.update()
 
     # Fill the screen with black
-    screen.fill((135, 206, 250))
+    screen.fill((128, 128, 128))
 
     # Draw the player and enemies on the screen
     for entity in all_sprites:
         screen.blit(entity.surf, entity.rect)
     
-    # Check if any enemies have collided with the player
-    if pygame.sprite.spritecollideany(player, enemies):
-       # If so, then remove the player and stop the loop
-        new_enemy.kill()
-        running = False
-
     # Update the display
     pygame.display.flip()
-    clock.tick(1000)
+    clock.tick(30)
+    # time.sleep(100)
+
+
