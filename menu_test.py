@@ -32,24 +32,23 @@ menu.add_label('Artifial Intelligence',
                max_char=-1, 
                font_size=70, 
                font_name="Times", 
-               font_color=(125, 125, 135),
-               shadow=True,
-               shadow_color=(1, 254, 250))
+               font_color=(125, 125, 135))
 menu.add_vertical_margin(10)
 
 menu.add_image(PATH,
-               angle=15, 
+               angle=15,
+               #margin=(-100,-25)
                scale=(0.2, 0.2), 
                scale_smooth=True)
 menu.add_vertical_margin(20)
+
+
 
 menu.add_button('Start', 
                 start_the_game,
                 font_name="Times", 
                 font_color=(125, 125, 125), 
-                font_size=35,
-                shadow=False,
-               shadow_color=(1, 254, 250))
+                font_size=35)
 menu.add_vertical_margin(20)
 
 menu.add_button('Start AI', 
