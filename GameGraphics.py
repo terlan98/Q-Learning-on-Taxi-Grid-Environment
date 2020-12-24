@@ -1,7 +1,8 @@
 # Import the pygame module
 import pygame
-import random
 import time
+import random
+from random import randint
 
 # Import pygame.locals for easier access to key coordinates
 # Updated to conform to flake8 and black standards
@@ -135,12 +136,16 @@ for i in range(len(mapArray)):
                 element.scale(100,100)
                 element.setPosition(xPosition, yPosition)
             else:
-                element = MapElement("taxi_assets/house1.png")
+                val = randint(1,3)
+                if val == 1:
+                    element = MapElement("taxi_assets/house1.png")
+                elif val == 2:
+                    element = MapElement("taxi_assets/house2.png")
+                else:
+                    element = MapElement("taxi_assets/house3.png")
                 element.scale(90,90)
                 element.setPosition(xPosition + 8, yPosition + 5)
-
-            
-            
+     
             
             all_sprites.add(element)
                     
