@@ -51,9 +51,6 @@ class MapElement(pygame.sprite.Sprite):
     
 
 
-
-
-
 # Define constants for the screen width and height
 SCREEN_WIDTH = 700
 SCREEN_HEIGHT = 700
@@ -100,7 +97,12 @@ pygame.init()
 # Create the screen object
 # The size is determined by the constant SCREEN_WIDTH and SCREEN_HEIGHT
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+all_sprites = pygame.sprite.Group()
 
+element = MapElement("taxi_assets/emptyGrid-2.png")
+element.scale(500,500)
+element.setPosition(100,100)
+all_sprites.add(element)
 
 # Instantiate player and map
 player = Player()
@@ -109,7 +111,6 @@ player = Player()
 # Create groups to hold enemy sprites and all sprites
 # - enemies is used for collision detection and position updates
 # - all_sprites is used for rendering
-all_sprites = pygame.sprite.Group()
 
 all_sprites.add(player)
 
@@ -147,13 +148,13 @@ for i in range(len(mapArray)):
 
         if mapArray[i][j] == "S" :
             element = MapElement("taxi_assets/samirMlm.png")
-            element.setPosition(xPosition,yPosition)
+            element.setPosition(xPosition + 25,yPosition + 25)
             all_sprites.add(element)
 
         
         if mapArray[i][j] == "F" :
             element = MapElement("taxi_assets/destination.png")
-            element.setPosition(xPosition,yPosition)
+            element.setPosition(xPosition + 35,yPosition + 25)
             all_sprites.add(element)
         
         
@@ -163,6 +164,7 @@ for i in range(len(mapArray)):
     xPosition = 0
     yPosition = yPosition + 100
     print()
+
 
 
 
