@@ -153,13 +153,15 @@ for i in range(len(mapArray)):
 
         if mapArray[i][j] == "S" :
             element = MapElement("taxi_assets/samirMlm.png")
-            element.setPosition(xPosition + 25,yPosition + 25)
+            element.setPosition(xPosition + 13 ,yPosition + 13)
+            element.scale(70,70)
             all_sprites.add(element)
 
         
         if mapArray[i][j] == "F" :
             element = MapElement("taxi_assets/destination.png")
-            element.setPosition(xPosition + 35,yPosition + 25)
+            element.setPosition(xPosition + 23,yPosition +12)
+            element.scale(70,70)
             all_sprites.add(element)
         
         
