@@ -4,10 +4,11 @@ import random
 
 
 class MapGenerator:
-    def __init__(self, rows, cols, num_obstacles):
+    def __init__(self, rows, cols, num_obstacles, scale_factor):
         self.rows = rows
         self.cols = cols
         self.num_obstacles = num_obstacles
+        self.scale_factor = scale_factor
         self.base_grid = [['#'] * (cols + 2) for _ in range(rows + 2)]
         self.base_obstacle_positions = set((i, j) for i in range(
             1, rows + 1) for j in range(1, cols + 1))
@@ -17,10 +18,16 @@ class MapGenerator:
         obstacle_positions = self.base_obstacle_positions.copy()
         free_positions = set()
 
-        cur_pos = random.choice(tuple(obstacle_positions))
-        grid[cur_pos[0]][cur_pos[1]] = '='
-        free_positions.add(cur_pos)
-        num_to_free = self.rows * self.cols - self.num_obstacles - 1
+        num_to_free = self.rows * self.cols - self.num_obstacles
+        to_pick_random = num_to_free // self.scale_factor
+        num_to_free -= to_pick_random
+
+        while to_pick_random > 0:
+            cur_pos = random.choice(tuple(obstacle_positions))
+            obstacle_positions.remove(cur_pos)
+            grid[cur_pos[0]][cur_pos[1]] = '='
+            free_positions.add(cur_pos)
+            to_pick_random -= 1
 
         while num_to_free > 0:
             directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
@@ -48,6 +55,6 @@ class MapGenerator:
 
 
 if __name__ == '__main__':
-    map_gen = MapGenerator(5, 1, 2)
+    map_gen = MapGenerator(5, 5, 10, 2)
     grid = map_gen.generate()
     print(grid)
