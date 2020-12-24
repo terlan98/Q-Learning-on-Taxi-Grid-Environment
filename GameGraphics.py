@@ -36,7 +36,6 @@ class MapElement(pygame.sprite.Sprite):
     def __init__(self, imagePath):
         super(MapElement, self).__init__()
         self.surf = pygame.image.load(imagePath).convert_alpha()
-        #self.surf = pygame.transform.scale(self.surf, (100, 100))
         self.surf.set_colorkey((255, 255, 255), RLEACCEL)
     
     def setPosition(self,corX,corY):
@@ -127,23 +126,29 @@ xPosition = 0
 yPosition = 0
 
 
-    
 for i in range(len(mapArray)):
     for j in range(len(mapArray[i])):
         print(mapArray[i][j], xPosition, yPosition ,end=" ")
         if mapArray[i][j] == "#" :
             if i == 0 or i == 6 or j == 0 or j == 6:
                 element = MapElement("taxi_assets/brick_wall.png")
+                element.scale(100,100)
+                element.setPosition(xPosition, yPosition)
             else:
                 element = MapElement("taxi_assets/house1.png")
+                element.scale(90,90)
+                element.setPosition(xPosition + 8, yPosition + 5)
+
             
-            element.setPosition(xPosition,yPosition)
+            
+            
             all_sprites.add(element)
                     
 
         if mapArray[i][j] == "T" :
             element = MapElement("taxi_assets/taxiCar.png")
-            element.setPosition(xPosition,yPosition)
+            element.setPosition(xPosition + 10,yPosition)
+            element.scale(90,90)
             all_sprites.add(element)
 
         if mapArray[i][j] == "S" :
@@ -204,5 +209,3 @@ while running:
     pygame.display.flip()
     clock.tick(30)
     # time.sleep(100)
-
-
