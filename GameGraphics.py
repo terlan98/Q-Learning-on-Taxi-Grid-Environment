@@ -36,7 +36,7 @@ class MapElement(pygame.sprite.Sprite):
     def __init__(self, imagePath):
         super(MapElement, self).__init__()
         self.surf = pygame.image.load(imagePath).convert_alpha()
-        self.surf = pygame.transform.scale(self.surf, (100, 100))
+        #self.surf = pygame.transform.scale(self.surf, (100, 100))
         self.surf.set_colorkey((255, 255, 255), RLEACCEL)
     
     def setPosition(self,corX,corY):
