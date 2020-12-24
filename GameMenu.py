@@ -8,7 +8,7 @@ pygame.init()
 win_size = (700, 600)
 screen = pygame.display.set_mode(win_size)
 
-PATH = 'taxi_assets\icon.png'
+PATH = 'taxi_assets/icon.png'
 
 pygame.display.set_caption('Taxi Game AI')
 icon = pygame.image.load(PATH)
@@ -37,7 +37,6 @@ menu.add_vertical_margin(10)
 
 menu.add_image(PATH,
                angle=15,
-               #margin=(-100,-25)
                scale=(0.2, 0.2), 
                scale_smooth=True)
 menu.add_vertical_margin(20)
