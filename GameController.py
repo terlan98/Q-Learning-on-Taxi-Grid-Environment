@@ -36,6 +36,7 @@ START_SYMBOL = "S"
 FINISH_SYMBOL = "F"
 
 # Rewards
+WALL_COST = 1
 MOVE_COST = 1
 WRONG_DROP_OFF_COST = -10
 DROP_OFF_REWARD = 30
@@ -118,6 +119,48 @@ class GameController:
 		self.taxiPosition = newPosition
 		
 		self.updateScore(direction)
+	
+	def step(self, action: Action):
+		""" Returns next state of grid after taking an action"""
+		newGrid = deepcopy(self.currentGrid)
+		
+		if action not in self.getValidMoves():
+			return newGrid
+		
+		newPosition = self.getNextPoint(action)
+		
+		# replace cell with T
+		newGrid[newPosition[0]][newPosition[1]] = TAXI_SYMBOL
+		
+		# replace the old cell
+		if self.originalGrid[self.taxiPosition[0]][self.taxiPosition[1]] not in [START_SYMBOL, FINISH_SYMBOL]:
+			newGrid[self.taxiPosition[0]
+			][self.taxiPosition[1]] = ROAD_SYMBOL
+		else:
+			newGrid[self.taxiPosition[0]][self.taxiPosition[1]] = self.originalGrid[self.taxiPosition[0]][
+				self.taxiPosition[1]]
+		
+		return newGrid
+	
+	def getReward(self, action: Action):
+		"""Updates the score based on the reward of moving from startPoint to endPoint"""
+		reward = 0
+		currentOriginalChar = self.originalGrid[self.taxiPosition[0]]
+		[self.taxiPosition[1]]
+		
+		if action == Action.DROP_OFF:
+			if self.isCustomerPickedUp and currentOriginalChar == FINISH_SYMBOL:  # correct drop off
+				print("CORRECT DROP OFF")
+				reward += DROP_OFF_REWARD
+			else:
+				print("WRONG DROP OFF")
+				reward += WRONG_DROP_OFF_COST
+		elif action not in self.getValidMoves():
+			reward -= WALL_COST
+		else:
+			reward -= MOVE_COST
+		
+		return reward
 	
 	def pickUp(self):
 		"""Updates the current grid so that it shows the next state after picking up the customer
