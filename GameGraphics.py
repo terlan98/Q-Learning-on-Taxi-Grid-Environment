@@ -1,4 +1,6 @@
 # Import the pygame module
+from threading import Thread
+
 import pygame
 import time
 import random
@@ -14,6 +16,7 @@ from pygame.locals import (
     K_RIGHT,
     K_ESCAPE,
     KEYDOWN,
+    KEYUP,
     QUIT,
 )
 
@@ -67,14 +70,6 @@ class Player(pygame.sprite.Sprite):
 
     # Move the sprite based on user keypresses
     def update(self, pressed_keys):
-        if pressed_keys[K_UP]:
-            self.rect.move_ip(0, -100)
-        if pressed_keys[K_DOWN]:
-            self.rect.move_ip(0, 100)
-        if pressed_keys[K_LEFT]:
-            self.rect.move_ip(-100, 0)
-        if pressed_keys[K_RIGHT]:
-            self.rect.move_ip(100, 0)
         
          # Keep player on the screen
         if self.rect.left < 0:
@@ -87,132 +82,111 @@ class Player(pygame.sprite.Sprite):
             self.rect.bottom = SCREEN_HEIGHT
 
 
-
-# Initialize pygame
-pygame.init()
-
-
-
-
-# Create the screen object
-# The size is determined by the constant SCREEN_WIDTH and SCREEN_HEIGHT
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-all_sprites = pygame.sprite.Group()
-
-element = MapElement("taxi_assets/emptyGrid-2.png")
-element.scale(500,500)
-element.setPosition(100,100)
-all_sprites.add(element)
-
-# Instantiate player and map
-player = Player()
-
-
-# Create groups to hold enemy sprites and all sprites
-# - enemies is used for collision detection and position updates
-# - all_sprites is used for rendering
-
-all_sprites.add(player)
-
-
-clock = pygame.time.Clock()
-
-# Variable to keep the main loop running
-running = True
-
-
-
-count = 0
-xPosition = 0
-yPosition = 0
-
-
-for i in range(len(mapArray)):
-    for j in range(len(mapArray[i])):
-        print(mapArray[i][j], xPosition, yPosition ,end=" ")
-        if mapArray[i][j] == "#" :
-            if i == 0 or i == 6 or j == 0 or j == 6:
-                element = MapElement("taxi_assets/brick_wall.png")
-                element.scale(100,100)
-                element.setPosition(xPosition, yPosition)
-            else:
-                val = randint(1,3)
-                if val == 1:
-                    element = MapElement("taxi_assets/house1.png")
-                elif val == 2:
-                    element = MapElement("taxi_assets/house2.png")
-                else:
-                    element = MapElement("taxi_assets/house3.png")
-                element.scale(90,90)
-                element.setPosition(xPosition + 8, yPosition + 5)
-     
-            
-            all_sprites.add(element)
-                    
-
-        if mapArray[i][j] == "T" :
-            element = MapElement("taxi_assets/taxiCar.png")
-            element.setPosition(xPosition + 10,yPosition)
-            element.scale(90,90)
-            all_sprites.add(element)
-
-        if mapArray[i][j] == "S" :
-            element = MapElement("taxi_assets/samirMlm.png")
-            element.setPosition(xPosition + 13 ,yPosition + 13)
-            element.scale(70,70)
-            all_sprites.add(element)
-
-        
-        if mapArray[i][j] == "F" :
-            element = MapElement("taxi_assets/destination.png")
-            element.setPosition(xPosition + 23,yPosition +12)
-            element.scale(70,70)
-            all_sprites.add(element)
-        
-        
-
-        
-        xPosition = xPosition + 100
+class GameGraphics:
+    
+    screen = None
+    all_sprites = pygame.sprite.Group()  # used for rendering
+    clock = None
+    # player = None
+    
+    # Variable to keep the main loop running
+    running = True
+    
+    count = 0
     xPosition = 0
-    yPosition = yPosition + 100
-    print()
-
-
-
-
-# Main loop
-while running:
-    # for loop through the event queue
-    for event in pygame.event.get():
-        # Check for KEYDOWN event
-        if event.type == KEYDOWN:
-            # If the Esc key is pressed, then exit the main loop
-            if event.key == K_ESCAPE:
-                running = False
-
-        # Check for QUIT event. If QUIT, then set running to false.
-        elif event.type == QUIT:
-            running = False
-
-
-
+    yPosition = 0
     
+    def __init__(self):
+        # Initialize pygame
+        pygame.init()
+        
+        # Create the screen object
+        # The size is determined by the constant SCREEN_WIDTH and SCREEN_HEIGHT
+        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
+        self.clock = pygame.time.Clock()
+        
+        element = MapElement("taxi_assets/emptyGrid-2.png")
+        element.scale(500, 500)
+        element.setPosition(100, 100)
+        
+        self.all_sprites.add(element)
     
-    # Get all the keys currently pressed
-    pressed_keys = pygame.key.get_pressed()
+    def drawGrid(self, mapArray):
+        for i in range(len(mapArray)):
+            for j in range(len(mapArray[i])):
+                
+                print(mapArray[i][j], self.xPosition, self.yPosition ,end=" ")
+                
+                if mapArray[i][j] == "#" :
+                    if i == 0 or i == 6 or j == 0 or j == 6:
+                        element = MapElement("taxi_assets/brick_wall.png")
+                        element.scale(100,100)
+                        element.setPosition(self.xPosition, self.yPosition)
+                    else:
+                        val = randint(1,3)
+                        if val == 1:
+                            element = MapElement("taxi_assets/house1.png")
+                        elif val == 2:
+                            element = MapElement("taxi_assets/house2.png")
+                        else:
+                            element = MapElement("taxi_assets/house3.png")
+                        element.scale(90,90)
+                        element.setPosition(self.xPosition + 8, self.yPosition + 5)
+                    
+                    self.all_sprites.add(element)
+                    
+        
+                if mapArray[i][j] == "T" :
+                    element = MapElement("taxi_assets/taxiCar.png")
+                    element.setPosition(self.xPosition + 10, self.yPosition)
+                    element.scale(90,90)
+                    self.all_sprites.add(element)
+        
+                if mapArray[i][j] == "S" :
+                    element = MapElement("taxi_assets/samirMlm.png")
+                    element.setPosition(self.xPosition + 13, self.yPosition + 13)
+                    element.scale(70,70)
+                    self.all_sprites.add(element)
+        
+                
+                if mapArray[i][j] == "F" :
+                    element = MapElement("taxi_assets/destination.png")
+                    element.setPosition(self.xPosition + 23, self.yPosition +12)
+                    element.scale(70,70)
+                    self.all_sprites.add(element)
+                
+                self.xPosition = self.xPosition + 100
+            self.xPosition = 0
+            self.yPosition = self.yPosition + 100
+            print()
+        
+       
+    def activateScreen(self):
+        while self.running:
+            for event in pygame.event.get():
+                if event.type == KEYDOWN:
+                    if event.key == K_ESCAPE:
+                        self.running = False
+                elif event.type == QUIT:
+                    self.running = False
 
-    # Update the player and enemies sprite based on user keypresses
-    player.update(pressed_keys)
+            # Fill the screen with black
+            self.screen.fill((128, 128, 128))
+            
+            # Draw the player and enemies on the screen
+            for entity in self.all_sprites:
+                self.screen.blit(entity.surf, entity.rect)
+        
+            # Update the display
+            pygame.display.flip()
+            self.clock.tick(30)
+            print("while")
 
-    # Fill the screen with black
-    screen.fill((128, 128, 128))
 
-    # Draw the player and enemies on the screen
-    for entity in all_sprites:
-        screen.blit(entity.surf, entity.rect)
-    
-    # Update the display
-    pygame.display.flip()
-    clock.tick(30)
-    # time.sleep(100)
+if __name__ == "__main__":
+    graphics = GameGraphics()
+    graphics.drawGrid(mapArray)
+    thread = Thread(target = graphics.activateScreen())
+    thread.start()
+    print("it works")
