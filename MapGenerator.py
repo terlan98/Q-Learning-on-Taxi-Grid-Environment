@@ -3,15 +3,25 @@ import random
 # Add input validation and error checking
 
 
+def printGrid(grid):
+    """Prints the given grid"""
+    print()
+    for i in range(len(grid)):
+        for j in range(len(grid[i])):
+            print(grid[i][j], end=" ")
+        print()
+
+
 class MapGenerator:
-    def __init__(self, rows, cols, num_obstacles, scale_factor):
+    def __init__(self, rows, cols, num_obstacles, num_pickup_points, scale_factor):
         self.rows = rows
         self.cols = cols
         self.num_obstacles = num_obstacles
+        self.num_pickup_points = num_pickup_points
         self.scale_factor = scale_factor
         self.base_grid = [['#'] * (cols + 2) for _ in range(rows + 2)]
-        self.base_obstacle_positions = set((i, j) for i in range(
-            1, rows + 1) for j in range(1, cols + 1))
+        self.base_obstacle_positions = set((i, j) for j in range(1, cols + 1) for i in range(
+            1, rows + 1))
 
     def generate(self):
         grid = [row[:] for row in self.base_grid]
@@ -46,15 +56,22 @@ class MapGenerator:
                 free_positions.add(new_pos)
                 num_to_free -= 1
 
-        for marker in ['S', 'F', 'T']:
-            marker_pos = random.choice(tuple(free_positions))
-            free_positions.remove(marker_pos)
-            grid[marker_pos[0]][marker_pos[1]] = marker
+        taxi_pos = random.choice(tuple(free_positions))
+        free_positions.remove(taxi_pos)
+        grid[taxi_pos[0]][taxi_pos[1]] = 'T'
 
-        return grid
+        pickup_coords = []
+
+        for _ in range(self.num_pickup_points):
+            pickup_pos = random.choice(tuple(free_positions))
+            free_positions.remove(pickup_pos)
+            pickup_coords.append(pickup_pos)
+
+        return grid, pickup_coords
 
 
 if __name__ == '__main__':
-    map_gen = MapGenerator(5, 5, 10, 2)
-    grid = map_gen.generate()
-    print(grid)
+    map_gen = MapGenerator(5, 5, 4, 4, 2)
+    grid, pickup_coords = map_gen.generate()
+    printGrid(grid)
+    print(pickup_coords)
