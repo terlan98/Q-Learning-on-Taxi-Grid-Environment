@@ -1,9 +1,13 @@
 # author: Tarlan
 from enum import Enum
+from threading import Thread
 from typing import *
 from pynput import keyboard
 from pynput.keyboard import Key  # TODO: Replace it with pygame's key handler
 from copy import deepcopy
+
+from GameGraphics import GameGraphics
+from MapGenerator import MapGenerator
 
 DUMMY_MAP = [  # original
 	["#", "#", "#", "#", "#", "#", "#"],
@@ -63,8 +67,13 @@ class Action(Enum):
 
 
 class GameController:
-	originalGrid = deepcopy(DUMMY_MAP)  # we need a deepcopy because otherwise it will be the same as currentGrid
-	currentGrid = DUMMY_MAP
+	# originalGrid = deepcopy(DUMMY_MAP)  # we need a deepcopy because otherwise it will be the same as currentGrid
+	# currentGrid = DUMMY_MAP
+	
+	originalGrid = MapGenerator(5, 5, 5, 2).generate()  # we need a deepcopy because otherwise it will be the same as currentGrid
+	currentGrid = deepcopy(originalGrid)
+	
+	graphics = GameGraphics()
 	
 	taxiPosition = (-1, -1)
 	startPosition = (-1, -1)
@@ -81,9 +90,13 @@ class GameController:
 		
 		print("taxi:", self.taxiPosition, "start:", self.startPosition, "finish:", self.finishPosition)
 		
+		self.graphics.drawGrid(self.originalGrid)
+		
 		listener = keyboard.Listener(on_press=self.on_press)
 		listener.start()
-		listener.join()
+		
+		thread = Thread(target=self.graphics.activateScreen())
+		thread.start()
 	
 	def move(self, direction: Action):
 		"""Given a direction and a grid, updates the current grid so that it shows the next position of the taxi.
@@ -190,11 +203,14 @@ class GameController:
 		
 		if not self.isGameFinished:
 			self.printGrid(self.currentGrid)
+			self.graphics.drawGrid(self.currentGrid)
 			print("SCORE:", self.score, "CUSTOMER :", self.isCustomerPickedUp)
+			
+			
 	
 	def getValidMoves(self) -> List[Action]:
 		"""Returns a list of valid moves for the taxi"""
-		validMoves = [Action.NORTH, Action.WEST, Action.EAST, Action.SOUTH]
+		validMoves = [Action.NORTH, Action.WEST, Action.EAST, Action.SOUTH, Action.PICK_UP, Action.DROP_OFF]
 		grid = self.currentGrid
 		
 		x = self.taxiPosition[0]

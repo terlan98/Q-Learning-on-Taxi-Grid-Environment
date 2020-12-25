@@ -20,15 +20,15 @@ from pygame.locals import (
     QUIT,
 )
 
-mapArray = [  # original
-	["#", "#", "#", "#", "#", "#", "#"],
-	["#", "=", "=", "#", "=", "=", "#"],
-	["#", "=", "=", "#", "F", "=", "#"],
-	["#", "=", "=", "=", "=", "=", "#"],
-	["#", "=", "=", "T", "=", "=", "#"],
-	["#", "S", "=", "=", "=", "=", "#"],
-	["#", "#", "#", "#", "#", "#", "#"]
-]
+# mapArray = [  # original
+# 	["#", "#", "#", "#", "#", "#", "#"],
+# 	["#", "=", "=", "#", "=", "=", "#"],
+# 	["#", "=", "=", "#", "F", "=", "#"],
+# 	["#", "=", "=", "=", "=", "=", "#"],
+# 	["#", "=", "=", "T", "=", "=", "#"],
+# 	["#", "S", "=", "=", "=", "=", "#"],
+# 	["#", "#", "#", "#", "#", "#", "#"]
+# ]
 
 
 
@@ -106,6 +106,9 @@ class GameGraphics:
 
         self.clock = pygame.time.Clock()
         
+        self.addBackgroundSprite()
+    
+    def addBackgroundSprite(self):
         element = MapElement("taxi_assets/emptyGrid-2.png")
         element.scale(500, 500)
         element.setPosition(100, 100)
@@ -113,10 +116,16 @@ class GameGraphics:
         self.all_sprites.add(element)
     
     def drawGrid(self, mapArray):
+        print("Draw is called", self, mapArray)
+        self.xPosition = 0
+        self.yPosition = 0
+        self.all_sprites.empty()
+        self.addBackgroundSprite()
+        
         for i in range(len(mapArray)):
             for j in range(len(mapArray[i])):
                 
-                print(mapArray[i][j], self.xPosition, self.yPosition ,end=" ")
+                print(mapArray[i][j], self.xPosition, self.yPosition, end=" ")
                 
                 if mapArray[i][j] == "#" :
                     if i == 0 or i == 6 or j == 0 or j == 6:
@@ -161,6 +170,7 @@ class GameGraphics:
             self.yPosition = self.yPosition + 100
             print()
         
+        print(self.all_sprites)
        
     def activateScreen(self):
         while self.running:
@@ -180,8 +190,7 @@ class GameGraphics:
         
             # Update the display
             pygame.display.flip()
-            self.clock.tick(30)
-            print("while")
+            self.clock.tick(1)
 
 
 if __name__ == "__main__":
