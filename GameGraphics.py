@@ -163,7 +163,14 @@ class GameGraphics:
         
        
     def activateScreen(self):
-        while True:
+        while self.running:
+            for event in pygame.event.get():
+                if event.type == KEYDOWN:
+                    if event.key == K_ESCAPE:
+                        self.running = False
+                elif event.type == QUIT:
+                    self.running = False
+
             # Fill the screen with black
             self.screen.fill((128, 128, 128))
             
@@ -174,7 +181,6 @@ class GameGraphics:
             # Update the display
             pygame.display.flip()
             self.clock.tick(30)
-            # time.sleep(100)
             print("while")
 
 
@@ -184,38 +190,3 @@ if __name__ == "__main__":
     thread = Thread(target = graphics.activateScreen())
     thread.start()
     print("it works")
-
-
-
-# # Main loop
-# while running:
-#     # for loop through the event queue
-#     for event in pygame.event.get():
-#         if event.type == KEYUP:
-#             if event.key == K_UP:
-#                 player.rect.move_ip(0, -100)
-#             if event.key == K_DOWN:
-#                 player.rect.move_ip(0, 100)
-#             if event.key == K_LEFT:
-#                 player.rect.move_ip(-100, 0)
-#             if event.key == K_RIGHT:
-#                 player.rect.move_ip(100, 0)
-#
-#         # Check for KEYDOWN event
-#         if event.type == KEYDOWN:
-#             # If the Esc key is pressed, then exit the main loop
-#             if event.key == K_ESCAPE:
-#                 running = False
-#
-#         # Check for QUIT event. If QUIT, then set running to false.
-#         elif event.type == QUIT:
-#             running = False
-#
-#
-#     # Get all the keys currently pressed
-#     pressed_keys = pygame.key.get_pressed()
-#
-#     # Update the player and enemies sprite based on user keypresses
-#     player.update(pressed_keys)
-
-    
