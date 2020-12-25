@@ -125,7 +125,7 @@ class GameGraphics:
         for i in range(len(mapArray)):
             for j in range(len(mapArray[i])):
                 
-                print(mapArray[i][j], self.xPosition, self.yPosition, end=" ")
+                # print(mapArray[i][j], self.xPosition, self.yPosition, end=" ")
                 
                 if mapArray[i][j] == "#" :
                     if i == 0 or i == 6 or j == 0 or j == 6:
@@ -140,8 +140,8 @@ class GameGraphics:
                             element = MapElement("taxi_assets/house2.png")
                         else:
                             element = MapElement("taxi_assets/house3.png")
-                        element.scale(90,90)
-                        element.setPosition(self.xPosition + 8, self.yPosition + 5)
+                        element.scale(80,80)
+                        element.setPosition(self.xPosition + 12, self.yPosition + 7)
                     
                     self.all_sprites.add(element)
                     
@@ -157,7 +157,6 @@ class GameGraphics:
                     element.setPosition(self.xPosition + 13, self.yPosition + 13)
                     element.scale(70,70)
                     self.all_sprites.add(element)
-        
                 
                 if mapArray[i][j] == "F" :
                     element = MapElement("taxi_assets/destination.png")
@@ -168,10 +167,9 @@ class GameGraphics:
                 self.xPosition = self.xPosition + 100
             self.xPosition = 0
             self.yPosition = self.yPosition + 100
-            print()
-        
-        print(self.all_sprites)
-       
+            # print()
+    
+            
     def activateScreen(self):
         while self.running:
             for event in pygame.event.get():
@@ -184,14 +182,17 @@ class GameGraphics:
             # Fill the screen with black
             self.screen.fill((128, 128, 128))
             
-            # Draw the player and enemies on the screen
+            if len(self.all_sprites) not in [33, 32]:
+                continue
+            
+            # Draw entities on the screen
             for entity in self.all_sprites:
                 self.screen.blit(entity.surf, entity.rect)
         
             # Update the display
             pygame.display.flip()
-            self.clock.tick(1)
-
+            # self.clock.tick(1)
+            time.sleep(0.5)
 
 if __name__ == "__main__":
     graphics = GameGraphics()
