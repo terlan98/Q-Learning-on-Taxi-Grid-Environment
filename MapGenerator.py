@@ -27,6 +27,7 @@ class MapGenerator:
         grid = [row[:] for row in self.base_grid]
         obstacle_positions = self.base_obstacle_positions.copy()
         free_positions = set()
+        valid_free_positions = set()
 
         num_to_free = self.rows * self.cols - self.num_obstacles
         to_pick_random = num_to_free // self.scale_factor
@@ -54,9 +55,11 @@ class MapGenerator:
                 grid[new_pos[0]][new_pos[1]] = '='
                 obstacle_positions.remove(new_pos)
                 free_positions.add(new_pos)
+                valid_free_positions(new_pos)
                 num_to_free -= 1
 
-        taxi_pos = random.choice(tuple(free_positions))
+        taxi_pos = random.choice(tuple(valid_free_positions))
+        valid_free_positions.remove(taxi_pos)
         free_positions.remove(taxi_pos)
         grid[taxi_pos[0]][taxi_pos[1]] = 'T'
         print('Taxi:', taxi_pos)
@@ -64,8 +67,9 @@ class MapGenerator:
         pickup_coords = []
 
         for _ in range(self.num_pickup_points):
-            pickup_pos = random.choice(tuple(free_positions))
+            pickup_pos = random.choice(tuple(valid_free_positions))
             free_positions.remove(pickup_pos)
+            valid_free_positions.remove(pickup_pos)
             pickup_coords.append(pickup_pos)
 
         return grid, pickup_coords
