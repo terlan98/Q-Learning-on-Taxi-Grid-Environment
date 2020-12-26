@@ -55,7 +55,7 @@ class MapGenerator:
                 grid[new_pos[0]][new_pos[1]] = '='
                 obstacle_positions.remove(new_pos)
                 free_positions.add(new_pos)
-                valid_free_positions(new_pos)
+                valid_free_positions.add(new_pos)
                 num_to_free -= 1
 
         taxi_pos = random.choice(tuple(valid_free_positions))

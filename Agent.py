@@ -22,15 +22,23 @@ def flatten(grid):
 
 class Agent:
 
-    q_table = dict()
     # actions = ['NORTH', 'SOUTH', 'EAST', 'WEST', 'PICK-UP', 'DROP-OFF']
 
     def __init__(self, env, alpha=0.1, gamma=1.0, epsilon=0.1):
+        env.putMarkers()
         self.cur_state = flatten(env.currentGrid)
         self.alpha = alpha
         self.gamma = gamma
         self.epsilon = epsilon
         self.env = env
+        self.q_table = dict()
+
+    @classmethod
+    def from_trained(cls, env, q_table, initial_state):
+        agent = cls(env, alpha=0.0, gamma=0.0, epsilon=0.0)
+        agent.q_table = q_table
+        agent.cur_state = initial_state
+        return agent
 
     def get_q_values(self, state):
         enc_state = flatten(state)
@@ -69,7 +77,6 @@ class Agent:
                           Action.DROP_OFF: KeyCode(char='d')}
 
         self.env.on_press(actionToKeyMap[action])
-        # self.env.move(action)
 
     def get_argmax_q(self):
         action_vals = self.get_q_values(self.cur_state)
@@ -97,14 +104,25 @@ def print_q_table(q_table):
 
 if __name__ == "__main__":
     env = GameController(isTraining=True)
+    # env.run()
+
+    thread = Thread(target=env.run)
+    thread.start()
+
     agent = Agent(env, alpha=0.8)
 
-    env.run()
+    initial_state = agent.cur_state
 
-    num_epochs = 100000
+    num_epochs = 100
 
     while num_epochs:
+        print('Current epoch:', num_epochs)
+
         agent.make_move()
         num_epochs -= 1
 
-    # print_q_table(agent.q_table)
+    greedy_agent = Agent.from_trained(env, agent.q_table, initial_state)
+
+    while True:
+        agent.make_move()
+        time.sleep(2)

@@ -98,44 +98,42 @@ class GameController:
 
     def run(self):
         self.isTraining = True
-        
+
         self.putMarkers()
         self.locateObjects(self.originalGrid)
         self.printGrid(self.originalGrid)
-        
+
         print("taxi:", self.taxiPosition, "start:",
               self.startPosition, "finish:", self.finishPosition)
-        
+
         if not self.isTraining:
             self.graphics = GameGraphics()
             self.graphics.drawGrid(self.originalGrid)
-        
+
         listener = keyboard.Listener(on_press=self.on_press)
         listener.start()
-        
+
         if not self.isTraining:
             thread = Thread(target=self.graphics.activateScreen)
             thread.start()
-        
-        while True:
+
+        while self.isGameFinished:
             time.sleep(0.2)
 
     def putMarkers(self):
         fPoint, sPoint = random.sample(self.pPositions, 2)
-        
+
         while fPoint == self.taxiPosition or sPoint == self.taxiPosition:
             fPoint, sPoint = random.sample(self.pPositions, 2)
-        
-        
-        print(fPoint, sPoint)
+
         self.originalGrid[fPoint[0]][fPoint[1]] = FINISH_SYMBOL
         self.originalGrid[sPoint[0]][sPoint[1]] = START_SYMBOL
         self.currentGrid = deepcopy(self.originalGrid)
 
     def move(self, direction: Action):
         """Given a direction and a grid, updates the current grid so that it shows the next position of the taxi"""
-        print("ORIGINAL:")
-        self.printGrid(self.originalGrid)
+        # print("ORIGINAL:")
+        # self.printGrid(self.originalGrid)
 
         newPosition = self.getNextPoint(direction)
 
@@ -143,7 +141,8 @@ class GameController:
         self.currentGrid[newPosition[0]][newPosition[1]] = TAXI_SYMBOL
 
         # replace the old cell
-        print("original old char:", self.originalGrid[self.taxiPosition[0]][self.taxiPosition[1]])
+        # print("original old char:",
+        #       self.originalGrid[self.taxiPosition[0]][self.taxiPosition[1]])
         if self.originalGrid[self.taxiPosition[0]][self.taxiPosition[1]] not in [START_SYMBOL, FINISH_SYMBOL]:
             self.currentGrid[self.taxiPosition[0]
                              ][self.taxiPosition[1]] = ROAD_SYMBOL
@@ -215,7 +214,6 @@ class GameController:
                           ][self.startPosition[1]] = ROAD_SYMBOL
 
         self.isCustomerPickedUp = True
-        print("HAHAHAHAHAHHAH")
 
     def dropOff(self):
         """Updates the current grid so that it shows the next state after dropping off the customer"""
@@ -224,7 +222,7 @@ class GameController:
                                                 ][self.taxiPosition[1]]
         if currentOriginalChar != FINISH_SYMBOL or not self.isCustomerPickedUp:
             return
-        
+
         self.originalGrid[self.finishPosition[0]
                           ][self.finishPosition[1]] = TAXI_SYMBOL
 
@@ -234,17 +232,18 @@ class GameController:
         # self.isGameFinished = True
         self.updateScore(Action.DROP_OFF)
         self.isCustomerPickedUp = False
-        
-        self.originalGrid[self.firstTaxiPosition[0]][self.firstTaxiPosition[1]] = ROAD_SYMBOL
-        
+
+        self.originalGrid[self.firstTaxiPosition[0]
+                          ][self.firstTaxiPosition[1]] = ROAD_SYMBOL
+
         self.putMarkers()
-        
+
         self.locateObjects(self.originalGrid)
-        
+
         print("\n\nGame finished!")
         print("Final score:", self.score)
         self.score = INITIAL_SCORE
-    
+
     def updateScore(self, action: Action):
         """Updates the score based on the reward of moving from startPoint to endPoint"""
         self.score += self.getReward(action)
@@ -254,7 +253,7 @@ class GameController:
         if self.isGameFinished:
             return
 
-        validMoves = self.getpValidMoves()
+        validMoves = self.getValidMoves()
         selectedAction = None
 
         if key == Key.up:
@@ -325,7 +324,7 @@ class GameController:
             validMoves.remove(Action.SOUTH)
 
         return validMoves
-    
+
     def locateObjects(self, grid: List[List[str]]):
         """Locates and sets the coordinates of the taxi, start, and finish"""
         for i in range(len(grid)):
