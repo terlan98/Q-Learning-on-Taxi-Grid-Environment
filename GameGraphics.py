@@ -57,33 +57,15 @@ class MapElement(pygame.sprite.Sprite):
 # Define constants for the screen width and height
 SCREEN_WIDTH = 700
 SCREEN_HEIGHT = 700
+val = randint(1, 3)
 
-# Define a player object by extending pygame.sprite.Sprite
-# The surface drawn on the screen is now an attribute of 'player'
-class Player(pygame.sprite.Sprite):
-    def __init__(self):
-        super(Player, self).__init__()
-        self.surf = pygame.image.load("taxi_assets/taxiCar.png").convert_alpha()
-        self.surf = pygame.transform.scale(self.surf, (100, 100))
-        self.surf.set_colorkey((255, 255, 255), RLEACCEL)
-        self.rect = self.surf.get_rect()
-
-    # Move the sprite based on user keypresses
-    def update(self, pressed_keys):
-        
-         # Keep player on the screen
-        if self.rect.left < 0:
-            self.rect.left = 0
-        if self.rect.right > SCREEN_WIDTH:
-            self.rect.right = SCREEN_WIDTH
-        if self.rect.top <= 0:
-            self.rect.top = 0
-        if self.rect.bottom >= SCREEN_HEIGHT:
-            self.rect.bottom = SCREEN_HEIGHT
 
 
 class GameGraphics:
-    
+
+    houseList = ["taxi_assets/house1.png", "taxi_assets/house2.png", "taxi_assets/house3.png"]
+    houseCount = 0
+
     screen = None
     all_sprites = pygame.sprite.Group()  # used for rendering
     clock = None
@@ -102,7 +84,7 @@ class GameGraphics:
     def __init__(self):
         # Initialize pygame
         pygame.init()
-        
+
         # Create the screen object
         # The size is determined by the constant SCREEN_WIDTH and SCREEN_HEIGHT
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -117,14 +99,15 @@ class GameGraphics:
         element.setPosition(100, 100)
         
         self.all_sprites.add(element)
-    
+
     def drawGrid(self, mapArray):
         self.freezeScreen = True
         self.xPosition = 0
         self.yPosition = 0
+        self.houseCount = 0
         self.all_sprites.empty()
         self.addBackgroundSprite()
-        
+
         for i in range(len(mapArray)):
             for j in range(len(mapArray[i])):
                 
@@ -136,16 +119,11 @@ class GameGraphics:
                         element.scale(100,100)
                         element.setPosition(self.xPosition, self.yPosition)
                     else:
-                        val = randint(1,3)
-                        if val == 1:
-                            element = MapElement("taxi_assets/house1.png")
-                        elif val == 2:
-                            element = MapElement("taxi_assets/house2.png")
-                        else:
-                            element = MapElement("taxi_assets/house3.png")
+                        assetPath = self.houseList[self.houseCount % len(self.houseList)]
+                        element = MapElement(assetPath)
                         element.scale(80,80)
                         element.setPosition(self.xPosition + 12, self.yPosition + 7)
-                    
+                        self.houseCount += 1
                     self.all_sprites.add(element)
                     
         
@@ -156,7 +134,10 @@ class GameGraphics:
                     self.all_sprites.add(element)
         
                 if mapArray[i][j] == "S" :
-                    element = MapElement("taxi_assets/samirMlm.png")
+                    if val == 1:
+                        element = MapElement("taxi_assets/samirMlm.png")
+                    else:
+                        element = MapElement("taxi_assets/customer.png")
                     element.setPosition(self.xPosition + 13, self.yPosition + 13)
                     element.scale(70,70)
                     self.all_sprites.add(element)
