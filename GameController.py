@@ -25,7 +25,7 @@ DUMMY_MAP = [
 	["#", "=", "=", "#", "F", "=", "#"],
 	["#", "=", "=", "=", "=", "=", "#"],
 	["#", "=", "=", "=", "=", "=", "#"],
-	["#", "S", "=", "=", "=", "T", "#"],
+	["#", "S", "T", "=", "=", "=", "#"],
 	["#", "#", "#", "#", "#", "#", "#"]
 ]
 
@@ -40,6 +40,8 @@ WALL_COST = 1
 MOVE_COST = 1
 WRONG_DROP_OFF_COST = -10
 DROP_OFF_REWARD = 30
+
+INITIAL_SCORE = 1000
 
 
 class Action(Enum):
@@ -68,11 +70,11 @@ class Action(Enum):
 
 
 class GameController:
-	# originalGrid = deepcopy(DUMMY_MAP)  # we need a deepcopy because otherwise it will be the same as currentGrid
-	# currentGrid = DUMMY_MAP
-	
-	originalGrid = MapGenerator(5, 5, 5, 2).generate()  # we need a deepcopy because otherwise it will be the same as currentGrid
+	originalGrid = DUMMY_MAP  # we need a deepcopy because otherwise it will be the same as currentGrid
 	currentGrid = deepcopy(originalGrid)
+	
+	# originalGrid = MapGenerator(5, 5, 5, 2, 2).generate()  # we need a deepcopy because otherwise it will be the same as currentGrid
+	# currentGrid = deepcopy(originalGrid)
 	
 	graphics = GameGraphics()
 	
@@ -83,7 +85,7 @@ class GameController:
 	isCustomerPickedUp = False
 	isGameFinished = False
 	
-	score = 1000
+	score = INITIAL_SCORE
 	
 	def run(self):
 		self.printGrid(self.currentGrid)
@@ -100,8 +102,7 @@ class GameController:
 		thread.start()
 	
 	def move(self, direction: Action):
-		"""Given a direction and a grid, updates the current grid so that it shows the next position of the taxi.
-		\n Side effect: triggers reward calculation"""
+		"""Given a direction and a grid, updates the current grid so that it shows the next position of the taxi"""
 		
 		newPosition = self.getNextPoint(direction)
 		
@@ -118,8 +119,6 @@ class GameController:
 		# update taxi position
 		self.taxiPosition = newPosition
 		
-		self.updateScore(direction)
-	
 	def step(self, action: Action):
 		""" Returns next state of grid after taking an action"""
 		newGrid = deepcopy(self.currentGrid)
@@ -145,8 +144,7 @@ class GameController:
 	def getReward(self, action: Action):
 		"""Updates the score based on the reward of moving from startPoint to endPoint"""
 		reward = 0
-		currentOriginalChar = self.originalGrid[self.taxiPosition[0]]
-		[self.taxiPosition[1]]
+		currentOriginalChar = self.originalGrid[self.taxiPosition[0]][self.taxiPosition[1]]
 		
 		if action == Action.DROP_OFF:
 			if self.isCustomerPickedUp and currentOriginalChar == FINISH_SYMBOL:  # correct drop off
@@ -155,17 +153,17 @@ class GameController:
 			else:
 				print("WRONG DROP OFF")
 				reward += WRONG_DROP_OFF_COST
+				
 		elif action not in self.getValidMoves():
 			reward -= WALL_COST
-		else:
+			
+		elif action != Action.PICK_UP:
 			reward -= MOVE_COST
 		
 		return reward
 	
 	def pickUp(self):
-		"""Updates the current grid so that it shows the next state after picking up the customer
-		\n Side effect: triggers reward calculation"""
-		self.updateScore(Action.PICK_UP)
+		"""Updates the current grid so that it shows the next state after picking up the customer"""
 		
 		currentOriginalChar = self.originalGrid[self.taxiPosition[0]][self.taxiPosition[1]]
 		if currentOriginalChar != START_SYMBOL:
@@ -176,9 +174,7 @@ class GameController:
 		self.isCustomerPickedUp = True
 	
 	def dropOff(self):
-		"""Updates the current grid so that it shows the next state after dropping off the customer
-		\n Side effect: triggers reward calculation"""
-		self.updateScore(Action.DROP_OFF)
+		"""Updates the current grid so that it shows the next state after dropping off the customer"""
 		
 		currentOriginalChar = self.originalGrid[self.taxiPosition[0]][self.taxiPosition[1]]
 		if currentOriginalChar != FINISH_SYMBOL or not self.isCustomerPickedUp:
@@ -186,65 +182,63 @@ class GameController:
 		
 		self.originalGrid[self.startPosition[0]][self.startPosition[1]] = ROAD_SYMBOL
 		
-		self.isCustomerPickedUp = False
 		self.endGame()
 	
 	def endGame(self):
 		self.isGameFinished = True
+		self.updateScore(Action.DROP_OFF)
+		self.isCustomerPickedUp = False
+		
 		print("\n\nGame finished!")
 		print("Final score:", self.score)
+		self.score = INITIAL_SCORE
 	
 	def updateScore(self, action: Action):
 		"""Updates the score based on the reward of moving from startPoint to endPoint"""
-		currentOriginalChar = self.originalGrid[self.taxiPosition[0]][self.taxiPosition[1]]
-		
-		if action == Action.PICK_UP:
-			pass
-			# if currentOriginalChar != START_SYMBOL:  # wrong pickup
-			# 	print("WRONG PICKUP at", currentOriginalChar)
-			# 	self.score += WRONG_PICKUP_COST
-		
-		elif action == Action.DROP_OFF:
-			if self.isCustomerPickedUp and currentOriginalChar == FINISH_SYMBOL:  # correct drop off
-				print("CORRECT DROP OFF")
-				self.score += DROP_OFF_REWARD
-			elif self.isCustomerPickedUp:
-				print("WRONG DROP OFF")
-				self.score += WRONG_DROP_OFF_COST
-		
-		else:
-			self.score -= MOVE_COST
+		self.score += self.getReward(action)
 	
 	def on_press(self, key):
 		if self.isGameFinished:
 			return
 		
 		validMoves = self.getValidMoves()
+		selectedAction = None
 		
 		if key == Key.up:
-			if Action.NORTH not in validMoves:
-				return
-			self.move(Action.NORTH)
+			selectedAction = Action.NORTH
+			if Action.NORTH in validMoves:
+				self.move(Action.NORTH)
+				
 		elif key == Key.down:
-			if Action.SOUTH not in validMoves:
-				return
-			self.move(Action.SOUTH)
+			selectedAction = Action.SOUTH
+			if Action.SOUTH in validMoves:
+				self.move(Action.SOUTH)
+				
 		elif key == Key.left:
-			if Action.WEST not in validMoves:
-				return
-			self.move(Action.WEST)
+			selectedAction = Action.WEST
+			if Action.WEST in validMoves:
+				self.move(Action.WEST)
+		
 		elif key == Key.right:
-			if Action.EAST not in validMoves:
-				return
-			self.move(Action.EAST)
+			selectedAction = Action.EAST
+			if Action.EAST in validMoves:
+				self.move(Action.EAST)
+			
 		elif hasattr(key, 'char') and key.char == 'p':
+			selectedAction = Action.PICK_UP
 			self.pickUp()
+			
 		elif hasattr(key, 'char') and key.char == 'd':
+			selectedAction = Action.DROP_OFF
 			self.dropOff()
+			
 		else:
 			return
 		
+		
 		if not self.isGameFinished:
+			self.updateScore(selectedAction)
+			
 			self.printGrid(self.currentGrid)
 			self.graphics.drawGrid(self.currentGrid)
 			print("SCORE:", self.score, "CUSTOMER :", self.isCustomerPickedUp)

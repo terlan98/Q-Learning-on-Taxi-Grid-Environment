@@ -20,15 +20,15 @@ from pygame.locals import (
     QUIT,
 )
 
-# mapArray = [  # original
-# 	["#", "#", "#", "#", "#", "#", "#"],
-# 	["#", "=", "=", "#", "=", "=", "#"],
-# 	["#", "=", "=", "#", "F", "=", "#"],
-# 	["#", "=", "=", "=", "=", "=", "#"],
-# 	["#", "=", "=", "T", "=", "=", "#"],
-# 	["#", "S", "=", "=", "=", "=", "#"],
-# 	["#", "#", "#", "#", "#", "#", "#"]
-# ]
+mapArray = [  # original
+	["#", "#", "#", "#", "#", "#", "#"],
+	["#", "=", "=", "#", "=", "=", "#"],
+	["#", "=", "=", "#", "F", "=", "#"],
+	["#", "=", "=", "=", "=", "=", "#"],
+	["#", "=", "=", "T", "=", "=", "#"],
+	["#", "S", "=", "=", "=", "=", "#"],
+	["#", "#", "#", "#", "#", "#", "#"]
+]
 
 
 
@@ -91,7 +91,10 @@ class GameGraphics:
     
     # Variable to keep the main loop running
     running = True
-    
+
+    # To prevent refreshing screen while sprites are being created
+    freezeScreen = False
+
     count = 0
     xPosition = 0
     yPosition = 0
@@ -116,7 +119,7 @@ class GameGraphics:
         self.all_sprites.add(element)
     
     def drawGrid(self, mapArray):
-        print("Draw is called", self, mapArray)
+        self.freezeScreen = True
         self.xPosition = 0
         self.yPosition = 0
         self.all_sprites.empty()
@@ -167,9 +170,10 @@ class GameGraphics:
                 self.xPosition = self.xPosition + 100
             self.xPosition = 0
             self.yPosition = self.yPosition + 100
+        self.freezeScreen = False
             # print()
     
-            
+    
     def activateScreen(self):
         while self.running:
             for event in pygame.event.get():
@@ -179,20 +183,20 @@ class GameGraphics:
                 elif event.type == QUIT:
                     self.running = False
 
+            if self.freezeScreen:  # if sprites are being calculated, don't draw yet
+                continue
+            
             # Fill the screen with black
             self.screen.fill((128, 128, 128))
-            
-            if len(self.all_sprites) not in [33, 32]:
-                continue
             
             # Draw entities on the screen
             for entity in self.all_sprites:
                 self.screen.blit(entity.surf, entity.rect)
-        
+            
             # Update the display
             pygame.display.flip()
             # self.clock.tick(1)
-            time.sleep(0.5)
+            time.sleep(0.1)
 
 if __name__ == "__main__":
     graphics = GameGraphics()
