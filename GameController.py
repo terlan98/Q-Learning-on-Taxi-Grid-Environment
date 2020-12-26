@@ -1,4 +1,5 @@
 # author: Tarlan
+import random
 from enum import Enum
 from threading import Thread
 from typing import *
@@ -38,6 +39,7 @@ FINISH_SYMBOL = "F"
 # Rewards
 WALL_COST = -10
 MOVE_COST = -1
+WRONG_PICK_UP_COST = -30
 WRONG_DROP_OFF_COST = -10
 DROP_OFF_REWARD = 30
 
@@ -71,13 +73,14 @@ class Action(Enum):
 
 class GameController:
     # we need a deepcopy because otherwise it will be the same as currentGrid
-    originalGrid = DUMMY_MAP
-    currentGrid = deepcopy(originalGrid)
-
-    # originalGrid = MapGenerator(5, 5, 5, 2, 2).generate()  # we need a deepcopy because otherwise it will be the same as currentGrid
+    # originalGrid = DUMMY_MAP
     # currentGrid = deepcopy(originalGrid)
 
-    graphics = GameGraphics()
+    # we need a deepcopy because otherwise it will be the same as currentGrid
+    originalGrid, pPositions = MapGenerator(5, 5, 5, 2, 2).generate()
+    currentGrid = deepcopy(originalGrid)
+
+    graphics = None
 
     taxiPosition = (-1, -1)
     startPosition = (-1, -1)
@@ -88,23 +91,38 @@ class GameController:
 
     score = INITIAL_SCORE
 
+    def __init__(self, isTraining=False):
+        self.isTraining = isTraining
+
     def run(self):
-        self.printGrid(self.currentGrid)
-        self.locateObjects(self.currentGrid)
+        self.putMarkers()
+        self.locateObjects(self.originalGrid)
+        self.printGrid(self.originalGrid)
 
         print("taxi:", self.taxiPosition, "start:",
               self.startPosition, "finish:", self.finishPosition)
 
-        self.graphics.drawGrid(self.originalGrid)
+        if not self.isTraining:
+            self.graphics = GameGraphics()
+            self.graphics.drawGrid(self.originalGrid)
 
-        # listener = keyboard.Listener(on_press=self.on_press)
-        # listener.start()
+        listener = keyboard.Listener(on_press=self.on_press)
+        listener.start()
 
-        thread = Thread(target=self.graphics.activateScreen)
-        thread.start()
+        if not self.isTraining:
+            thread = Thread(target=self.graphics.activateScreen)
+            thread.start()
+
+    def putMarkers(self):
+        fPoint, sPoint = random.sample(self.pPositions, 2)
+        self.originalGrid[fPoint[0]][fPoint[1]] = FINISH_SYMBOL
+        self.originalGrid[sPoint[0]][sPoint[1]] = START_SYMBOL
 
     def move(self, direction: Action):
         """Given a direction and a grid, updates the current grid so that it shows the next position of the taxi"""
+        print("ORIGINAL:")
+        self.printGrid(self.originalGrid)
+
         newPosition = self.getNextPoint(direction)
 
         # replace cell with T
@@ -149,12 +167,17 @@ class GameController:
         currentOriginalChar = self.originalGrid[self.taxiPosition[0]
                                                 ][self.taxiPosition[1]]
 
-        if action == Action.DROP_OFF:
+        if action == Action.PICK_UP:
+            if self.isCustomerPickedUp:  # wrong pickup
+                # print("WRONG PICK UP")
+                reward += WRONG_PICK_UP_COST
+
+        elif action == Action.DROP_OFF:
             if self.isCustomerPickedUp and currentOriginalChar == FINISH_SYMBOL:  # correct drop off
-                print("CORRECT DROP OFF")
+                # print("CORRECT DROP OFF")
                 reward += DROP_OFF_REWARD
             else:
-                print("WRONG DROP OFF")
+                # print("WRONG DROP OFF")
                 reward += WRONG_DROP_OFF_COST
 
         elif action not in self.getValidMoves():
@@ -195,7 +218,7 @@ class GameController:
         self.isGameFinished = True
         self.updateScore(Action.DROP_OFF)
         self.isCustomerPickedUp = False
-
+        self.putMarkers(originalGrid)
         print("\n\nGame finished!")
         print("Final score:", self.score)
         self.score = INITIAL_SCORE
@@ -205,7 +228,7 @@ class GameController:
         self.score += self.getReward(action)
 
     def on_press(self, key):
-        print("received key:", key)
+        # print("received key:", key)
         if self.isGameFinished:
             return
 
@@ -246,9 +269,11 @@ class GameController:
         if not self.isGameFinished:
             self.updateScore(selectedAction)
 
-            self.printGrid(self.currentGrid)
-            self.graphics.drawGrid(self.currentGrid)
-            print("SCORE:", self.score, "CUSTOMER :", self.isCustomerPickedUp)
+            # self.printGrid(self.currentGrid)
+            if not self.isTraining:
+                self.graphics.drawGrid(self.currentGrid)
+
+            # print("SCORE:", self.score, "CUSTOMER :", self.isCustomerPickedUp)
 
     def getValidMoves(self) -> List[Action]:
         """Returns a list of valid moves for the taxi"""

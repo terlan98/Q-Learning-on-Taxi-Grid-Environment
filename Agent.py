@@ -47,7 +47,7 @@ class Agent:
         else:
             action = self.get_argmax_q()
 
-        print('Picked action:', action)
+        # print('Picked action:', action)
 
         next_state, reward = flatten(self.env.step(
             action)), self.env.getReward(action)
@@ -96,11 +96,15 @@ def print_q_table(q_table):
 
 
 if __name__ == "__main__":
-    env = GameController()
-    agent = Agent(env)
+    env = GameController(isTraining=True)
+    agent = Agent(env, alpha=0.8)
 
     env.run()
 
-    while True:
-        time.sleep(2)
+    num_epochs = 100000
+
+    while num_epochs:
         agent.make_move()
+        num_epochs -= 1
+
+    # print_q_table(agent.q_table)

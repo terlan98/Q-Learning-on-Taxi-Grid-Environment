@@ -59,6 +59,7 @@ class MapGenerator:
         taxi_pos = random.choice(tuple(free_positions))
         free_positions.remove(taxi_pos)
         grid[taxi_pos[0]][taxi_pos[1]] = 'T'
+        print('Taxi:', taxi_pos)
 
         pickup_coords = []
 
