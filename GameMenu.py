@@ -12,23 +12,18 @@ from GameGraphics import GameGraphics,  SCREEN_WIDTH, SCREEN_HEIGHT
 # -----------------------------------------------------------------------------
 # Constants and global variables
 # -----------------------------------------------------------------------------
-ABOUT = ["Aritifical Integigent About Page",
-         "sahdbhasdba skjdbksjabdjas kdbaskas",
-         "dashdbkjasbd dajsdbkjaskdbjas",
-         "sjadnas asdnaskj"]
+ABOUT = ['Visualizing the solution of the TaxiV3 environment',
+         'from OpenAI Gym. The solution uses Tabular',
+         'Q-Learning and converges in 100 thousand',
+         'iterations. Developed as part of the',
+         'Artificial Intelligence course',
+         'at ADA University.'
+         ]
 
-LOADING = ['.', '..', '...', '....', '.....', 
-           '.', '..', '...', '....', '.....',
-           '.', '..', '...', '....', '.....',
-           '.', '..', '...', '....', '.....',
-           '.', '..', '...', '....', '.....',
-           '.', '..', '...', '....', '.....']
 PATH = 'taxi_assets/'
 pic1 = 'icon.png'
 pic2 = "ai.png"
-pic3 = "ai.png"
-
-
+pic3 = "loading.png"
 
 FPS = 60.0
 WINDOW_SIZE = (SCREEN_WIDTH, SCREEN_HEIGHT)
@@ -38,10 +33,10 @@ surface = None  # type: pygame.Surface
 main_menu = None  # type: pygame_menu.Menu
 clock = None
 
-
 def train_AI(test = False):    
-    GameGraphics().activateScreen(num_rounds=5)
-    exit()
+    GameGraphics().activateScreen(num_rounds=7)
+    pygame.disenbale()
+    # exit()
     
 COLORS = [(0,0,0),
           (100, 131, 147),
@@ -61,7 +56,6 @@ def main(test=False):
     # Globals
     # -------------------------------------------------------------------------
     global main_menu
-    global sound
     global surface
 
     # -------------------------------------------------------------------------
@@ -94,28 +88,19 @@ def main(test=False):
         title='Load Menu',
         width=WINDOW_SIZE[0],
     )
-    
+
     load_menu.add_image(PATH + pic3, 
                         angle=20, 
-                        scale=(2, 2), 
-                        scale_smooth=False)
+                        scale=(0.4, 0.4), 
+                        scale_smooth=True)
     load_menu.add_vertical_margin(10)
     
-    
-    # load_menu.add_label('LOADING...',
-    #                     max_char=-1, 
-    #                     font_size=80, 
-    #                     font_name="Times", 
-    #                     font_color=COLORS[1])
-    # load_menu.add_vertical_margin(80)
-    
+  
     load_menu.add_button('LOADING...', 
                          train_AI,
-                         font_name="Times", 
-                         font_size=35)
+                         font_name=pygame_menu.font.FONT_FRANCHISE, 
+                         font_size=50)
     load_menu.add_vertical_margin(20)
-    
-
     
     # -------------------------------------------------------------------------
     # Create menus: Play Menu
@@ -133,8 +118,8 @@ def main(test=False):
     
     play_menu.add_label('Group 5',
                         max_char=-1, 
-                        font_size=80, 
-                        font_name="Times", 
+                        font_size=90, 
+                        font_name=pygame_menu.font.FONT_FRANCHISE, 
                         font_color=COLORS[1])
     play_menu.add_vertical_margin(10)
 
@@ -144,25 +129,24 @@ def main(test=False):
                         scale_smooth=True)
     play_menu.add_vertical_margin(10)
     
-    play_menu.add_button('Start AI Training', 
+    play_menu.add_button('Start AI', 
                          load_menu,
-                         font_name="Times", 
-                         font_size=35)
+                         font_name=pygame_menu.font.FONT_FRANCHISE, 
+                         font_size=50,
+                         )
     play_menu.add_vertical_margin(20)
     
     play_menu.add_button('Return', 
                          pygame_menu.events.BACK, 
-                         font_name="Times", 
-                         font_size=35)
+                         font_name=pygame_menu.font.FONT_FRANCHISE, 
+                         font_size=50)
     play_menu.add_vertical_margin(20) 
-    # play_menu.add_button('Exit', pygame_menu.events.EXIT, font_name="Times", font_size=35)
 
     # -------------------------------------------------------------------------
     # Create menus:About
     # -------------------------------------------------------------------------
+    
     about_theme = pygame_menu.themes.THEME_SOLARIZED.copy()
-##    about_theme.widget_margin = (0, 0)
-##    about_theme.widget_offset = (0, 0)
 
     about_menu = pygame_menu.Menu(
         height=WINDOW_SIZE[1],
@@ -174,16 +158,14 @@ def main(test=False):
     for m in ABOUT:
         about_menu.add_label(m, 
                              align=pygame_menu.locals.ALIGN_CENTER, 
-                             font_name="Times", 
-                             font_size=30)
+                             font_name=pygame_menu.font.FONT_NEVIS, 
+                             font_size=20)
     about_menu.add_label('')
     
     about_menu.add_button('Return', 
                           pygame_menu.events.BACK, 
-                          font_name="Times", 
-                          font_size=35)
-
-  
+                          font_name=pygame_menu.font.FONT_FRANCHISE, 
+                          font_size=40)
 
     # -------------------------------------------------------------------------
     # Create menus: Main menu
@@ -199,10 +181,10 @@ def main(test=False):
         theme=main_theme,
     )
 
-    main_menu.add_label('Artifial Intelligence',
+    main_menu.add_label('Taxi Game AI',
                max_char=-1, 
-               font_size=70, 
-               font_name="Times", 
+               font_size=90, 
+               font_name=pygame_menu.font.FONT_FRANCHISE, 
                font_color=COLORS[1])
     main_menu.add_vertical_margin(10)
 
@@ -214,39 +196,30 @@ def main(test=False):
 
     main_menu.add_button('Play', 
                          play_menu,
-                         font_name="Times", 
-                         font_size=35)
+                         font_name=pygame_menu.font.FONT_FRANCHISE, 
+                         font_size=40)
     main_menu.add_vertical_margin(20)
     
     main_menu.add_button('About', 
                          about_menu, 
-                         font_name="Times", 
-                         font_size=35)
+                         font_name=pygame_menu.font.FONT_FRANCHISE, 
+                         font_size=40)
     main_menu.add_vertical_margin(20)
     
     main_menu.add_button('Quit', 
                          pygame_menu.events.EXIT, 
-                         font_name="Times", 
-                         font_size=35)
+                         font_name=pygame_menu.font.FONT_FRANCHISE, 
+                         font_size=40)
     main_menu.add_vertical_margin(20)
-    #main_menu.mainloop(surface,  fps_limit=FPS)
+    
     # -------------------------------------------------------------------------
     # Main loop
     # -------------------------------------------------------------------------
+    
     while True:
 
         # Tick
         clock.tick(FPS)
-
-        # Paint background
-##        main_background()
-        
-        # # Application events
-        # events = pygame.event.get()
-        # for event in events:
-        #     if event.type == pygame.QUIT:
-        #         exit()
-
                 
         # Main menu
         main_menu.mainloop(surface, disable_loop=test, fps_limit=FPS)
