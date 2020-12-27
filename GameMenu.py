@@ -1,13 +1,6 @@
-# # Import libraries
-# import sys
-
-# sys.path.insert(0, '../../')
-
-import os
 import pygame
 import pygame_menu
 from GameGraphics import GameGraphics,  SCREEN_WIDTH, SCREEN_HEIGHT
-
 
 # -----------------------------------------------------------------------------
 # Constants and global variables
