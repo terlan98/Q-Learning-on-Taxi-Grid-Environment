@@ -44,8 +44,6 @@ SCREEN_HEIGHT = 600
 SPRITE_WIDTH = 70
 SPRITE_HEIGHT = 70
 
-val = randint(1, 3)
-
 LOCS = [(0, 0), (0, 4), (4, 0), (4, 3)]
 ACTIONS = ['taxiCarSOUTH.png', 'taxiCarNORTH.png',
            'taxiCarEAST.png', 'taxiCarWEST.png']
@@ -116,10 +114,7 @@ class GameGraphics:
                     element.setPosition(self.xPosition, self.yPosition)
                     self.all_sprites.add(element)
                 elif passIndex != 4 and i == LOCS[passIndex][0] and j == LOCS[passIndex][1]:
-                    if val == 1:
-                        element = MapElement("taxi_assets/customer.png")
-                    else:
-                        element = MapElement("taxi_assets/samirMlm.png")
+                    element = MapElement("taxi_assets/samirMlm.png")
                     element.scale(SPRITE_WIDTH, SPRITE_HEIGHT)
                     element.setPosition(self.xPosition, self.yPosition)
                     self.all_sprites.add(element)
