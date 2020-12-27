@@ -20,7 +20,7 @@ from pygame.locals import (
     QUIT,
 )
 
-from Agent import Agent
+from Agent import Agent, env
 
 LOCS = [(0, 0), (0, 4), (4, 0), (4, 3)]
 
@@ -50,7 +50,7 @@ val = randint(1, 3)
 
 
 class GameGraphics:
-    
+
     screen = None
     all_sprites = pygame.sprite.Group()  # used for rendering
     clock = None
@@ -60,7 +60,7 @@ class GameGraphics:
     running = True
 
     # To prevent refreshing screen while sprites are being created
-    freezeScreen = False
+    # freezeScreen = False
 
     count = 0
     xPosition = 0
@@ -68,9 +68,9 @@ class GameGraphics:
 
     def __init__(self):
         # Initialize pygame
-        self.agent = Agent.train()
+        self.agent = Agent.train(num_epochs=100000)
         pygame.init()
-        
+
         # Create the screen object
         # The size is determined by the constant SCREEN_WIDTH and SCREEN_HEIGHT
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -87,23 +87,25 @@ class GameGraphics:
         self.all_sprites.add(element)
 
     def drawGrid(self, state):
-        self.freezeScreen = True
+        # self.freezeScreen = True
         self.xPosition = 85
         self.yPosition = 90
         self.all_sprites.empty()
         self.addBackgroundSprite()
-        
+
         taxiRow, taxiCol, passIndex, destIndex = map(int, state)
-        
+
         for i in range(5):
             for j in range(5):
                 # print(mapArray[i][j], self.xPosition, self.yPosition, end=" ")
+
                 if i == taxiRow and j == taxiCol:
                     element = MapElement("taxi_assets/taxiCar.png")
                     element.scale(SPRITE_WIDTH, SPRITE_HEIGHT)
-                    element.setPosition(self.xPosition - 10, self.yPosition - 15)
+                    element.setPosition(self.xPosition - 10,
+                                        self.yPosition - 15)
                     self.all_sprites.add(element)
-                elif i == LOCS[passIndex][0] and j == LOCS[passIndex][1]:
+                elif passIndex != 4 and i == LOCS[passIndex][0] and j == LOCS[passIndex][1]:
                     element = MapElement("taxi_assets/samirMlm.png")
                     element.scale(SPRITE_WIDTH, SPRITE_HEIGHT)
                     element.setPosition(self.xPosition, self.yPosition)
@@ -113,43 +115,45 @@ class GameGraphics:
                     element.scale(SPRITE_WIDTH, SPRITE_HEIGHT)
                     element.setPosition(self.xPosition + 10, self.yPosition)
                     self.all_sprites.add(element)
-                
+
                 self.xPosition = self.xPosition + 90
             self.xPosition = 100
             self.yPosition = self.yPosition + 100
-        self.freezeScreen = False
+        # self.freezeScreen = False
         # print()
 
-    def activateScreen(self):
-        while self.running:
-            for event in pygame.event.get():
-                if event.type == KEYDOWN:
-                    if event.key == K_ESCAPE:
+    def activateScreen(self, num_rounds):
+        while num_rounds:
+            while not self.agent.done and self.running:
+                for event in pygame.event.get():
+                    if event.type == KEYDOWN:
+                        if event.key == K_ESCAPE:
+                            self.running = False
+                    elif event.type == QUIT:
                         self.running = False
-                elif event.type == QUIT:
-                    self.running = False
 
-            if self.freezeScreen:  # if sprites are being calculated, don't draw yet
-                continue
-            
-            state = self.agent.make_move()
-            self.drawGrid(state)
-            
-            # Fill the screen with black
-            self.screen.fill((133, 131, 131))
+                state = self.agent.make_move()
+                self.drawGrid(state)
 
-            # Draw entities on the screen
-            for entity in self.all_sprites:
-                self.screen.blit(entity.surf, entity.rect)
+                # Fill the screen with black
+                self.screen.fill((133, 131, 131))
 
-            # Update the display
-            pygame.display.flip()
-            # self.clock.tick(1)
-            time.sleep(0.1)
+                # Draw entities on the screen
+                for entity in self.all_sprites:
+                    self.screen.blit(entity.surf, entity.rect)
+
+                # Update the display
+                pygame.display.flip()
+                self.clock.tick(3)
+
+            self.agent.cur_state = env.reset()
+            self.agent.done = False
+            num_rounds -= 1
+            # time.sleep(1)
 
 
 if __name__ == "__main__":
     graphics = GameGraphics()
     # graphics.drawGrid("2201")  # taxi i, taxi j, pass indx, dest index
-    graphics.activateScreen()
+    graphics.activateScreen(num_rounds=10)
     print("it works")
