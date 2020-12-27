@@ -72,7 +72,7 @@ class GameGraphics:
 
     def __init__(self):
         # Initialize pygame
-        self.agent = Agent.train(num_epochs=100000)
+        self.agent = Agent.train(num_episodes=100000)
         pygame.init()
 
         # Create the screen object
@@ -143,7 +143,7 @@ class GameGraphics:
                     elif event.type == QUIT:
                         self.running = False
 
-                state, last_action = self.agent.make_move()
+                state, last_action, _ = self.agent.make_move()
                 self.drawGrid(state, last_action)
 
                 # Fill the screen with black
