@@ -5,10 +5,9 @@
 
 import os
 import pygame
-import copy
 import pygame_menu
-from GameController import GameController
-from GameGraphics import SCREEN_WIDTH, SCREEN_HEIGHT
+from GameGraphics import GameGraphics,  SCREEN_WIDTH, SCREEN_HEIGHT
+
 
 # -----------------------------------------------------------------------------
 # Constants and global variables
@@ -18,9 +17,18 @@ ABOUT = ["Aritifical Integigent About Page",
          "dashdbkjasbd dajsdbkjaskdbjas",
          "sjadnas asdnaskj"]
 
+LOADING = ['.', '..', '...', '....', '.....', 
+           '.', '..', '...', '....', '.....',
+           '.', '..', '...', '....', '.....',
+           '.', '..', '...', '....', '.....',
+           '.', '..', '...', '....', '.....',
+           '.', '..', '...', '....', '.....']
 PATH = 'taxi_assets/'
 pic1 = 'icon.png'
 pic2 = "ai.png"
+pic3 = "ai.png"
+
+
 
 FPS = 60.0
 WINDOW_SIZE = (SCREEN_WIDTH, SCREEN_HEIGHT)
@@ -31,28 +39,10 @@ main_menu = None  # type: pygame_menu.Menu
 clock = None
 
 
-def start_the_game(test = False):    
-    # main_menu.disable()
-    # main_menu.reset(1)
-    GameController().run()
-    exit()
-   
-def start_AI_the_game():
-    print("Start (AI)")
-    print("Menu Exit")
-    #main_menu.disable()
-    #main_menu.reset(1)
-    GameController().run()
+def train_AI(test = False):    
+    GameGraphics().activateScreen(num_rounds=5)
     exit()
     
-
-def start_new_agent_the_game():
-    # write code
-    print("Train New Agent")
-    GameController().run()
-    exit()
-    #exit
-
 COLORS = [(0,0,0),
           (100, 131, 147),
           (100, 171, 181),
@@ -91,6 +81,43 @@ def main(test=False):
     clock = pygame.time.Clock()
     
     # -------------------------------------------------------------------------
+    # Create menus: LOAD
+    # -------------------------------------------------------------------------
+    
+    load_theme = pygame_menu.themes.THEME_SOLARIZED.copy()
+    load_theme.menubar_close_button = False
+    
+    load_menu = pygame_menu.Menu(
+        height=WINDOW_SIZE[1],
+        onclose=pygame_menu.events.DISABLE_CLOSE,
+        theme = load_theme,
+        title='Load Menu',
+        width=WINDOW_SIZE[0],
+    )
+    
+    load_menu.add_image(PATH + pic3, 
+                        angle=20, 
+                        scale=(2, 2), 
+                        scale_smooth=False)
+    load_menu.add_vertical_margin(10)
+    
+    
+    # load_menu.add_label('LOADING...',
+    #                     max_char=-1, 
+    #                     font_size=80, 
+    #                     font_name="Times", 
+    #                     font_color=COLORS[1])
+    # load_menu.add_vertical_margin(80)
+    
+    load_menu.add_button('LOADING...', 
+                         train_AI,
+                         font_name="Times", 
+                         font_size=35)
+    load_menu.add_vertical_margin(20)
+    
+
+    
+    # -------------------------------------------------------------------------
     # Create menus: Play Menu
     # -------------------------------------------------------------------------
     play_theme = pygame_menu.themes.THEME_SOLARIZED.copy()
@@ -106,34 +133,22 @@ def main(test=False):
     
     play_menu.add_label('Group 5',
                         max_char=-1, 
-                        font_size=70, 
+                        font_size=80, 
                         font_name="Times", 
                         font_color=COLORS[1])
     play_menu.add_vertical_margin(10)
 
     play_menu.add_image(PATH + pic2, 
-                        angle=5, 
-                        scale=(0.3, 0.3), 
+                        angle=4, 
+                        scale=(0.35, 0.4), 
                         scale_smooth=True)
-    play_menu.add_vertical_margin(30)
+    play_menu.add_vertical_margin(10)
     
-    play_menu.add_button('Start', 
-                         start_the_game, 
+    play_menu.add_button('Start AI Training', 
+                         load_menu,
                          font_name="Times", 
                          font_size=35)
     play_menu.add_vertical_margin(20)
-        
-    play_menu.add_button('Start AI', 
-                         start_AI_the_game, 
-                         font_name="Times", 
-                         font_size=35)
-    play_menu.add_vertical_margin(20) 
-    
-    play_menu.add_button('Train New Agent', 
-                         start_new_agent_the_game, 
-                         font_name="Times", 
-                         font_size=35)
-    play_menu.add_vertical_margin(20) 
     
     play_menu.add_button('Return', 
                          pygame_menu.events.BACK, 
