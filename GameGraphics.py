@@ -100,7 +100,7 @@ class GameGraphics:
                 # print(mapArray[i][j], self.xPosition, self.yPosition, end=" ")
 
                 if i == taxiRow and j == taxiCol:
-                    element = MapElement("taxi_assets/taxiCar.png")
+                    element = MapElement("taxi_assets/taxiCarNORTH.png")
                     element.scale(SPRITE_WIDTH, SPRITE_HEIGHT)
                     element.setPosition(self.xPosition - 10,
                                         self.yPosition - 15)
