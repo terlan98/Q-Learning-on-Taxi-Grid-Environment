@@ -71,8 +71,3 @@ class Agent:
                 agent.make_move()
 
         return Agent.from_trained(agent.q_table, env.reset())
-
-# if __name__ == "__main__":
-
-
-# env.locs

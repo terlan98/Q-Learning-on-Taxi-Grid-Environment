@@ -119,8 +119,6 @@ class GameGraphics:
                 self.xPosition = self.xPosition + 90
             self.xPosition = 100
             self.yPosition = self.yPosition + 100
-        # self.freezeScreen = False
-        # print()
 
     def activateScreen(self, num_rounds):
         while num_rounds:
@@ -149,11 +147,9 @@ class GameGraphics:
             self.agent.cur_state = env.reset()
             self.agent.done = False
             num_rounds -= 1
-            # time.sleep(1)
 
 
 if __name__ == "__main__":
     graphics = GameGraphics()
     # graphics.drawGrid("2201")  # taxi i, taxi j, pass indx, dest index
     graphics.activateScreen(num_rounds=10)
-    print("it works")
