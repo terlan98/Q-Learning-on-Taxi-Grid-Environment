@@ -20,15 +20,9 @@ from pygame.locals import (
     QUIT,
 )
 
-mapArray = [  # original
-    ["#", "#", "#", "#", "#", "#", "#"],
-    ["#", "=", "=", "#", "=", "=", "#"],
-    ["#", "=", "=", "#", "F", "=", "#"],
-    ["#", "=", "=", "=", "=", "=", "#"],
-    ["#", "=", "=", "T", "=", "=", "#"],
-    ["#", "S", "=", "=", "=", "=", "#"],
-    ["#", "#", "#", "#", "#", "#", "#"]
-]
+from Agent import Agent
+
+LOCS = [(0, 0), (0, 4), (4, 0), (4, 3)]
 
 
 class MapElement(pygame.sprite.Sprite):
@@ -46,17 +40,17 @@ class MapElement(pygame.sprite.Sprite):
 
 
 # Define constants for the screen width and height
-SCREEN_WIDTH = 700
-SCREEN_HEIGHT = 700
+SCREEN_WIDTH = 600
+SCREEN_HEIGHT = 600
+
+SPRITE_WIDTH = 70
+SPRITE_HEIGHT = 70
+
 val = randint(1, 3)
 
 
 class GameGraphics:
-
-    houseList = ["taxi_assets/house1.png",
-                 "taxi_assets/house2.png", "taxi_assets/house3.png"]
-    houseCount = 0
-
+    
     screen = None
     all_sprites = pygame.sprite.Group()  # used for rendering
     clock = None
@@ -74,8 +68,9 @@ class GameGraphics:
 
     def __init__(self):
         # Initialize pygame
+        self.agent = Agent.train()
         pygame.init()
-
+        
         # Create the screen object
         # The size is determined by the constant SCREEN_WIDTH and SCREEN_HEIGHT
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -85,65 +80,42 @@ class GameGraphics:
         self.addBackgroundSprite()
 
     def addBackgroundSprite(self):
-        element = MapElement("taxi_assets/emptyGrid-2.png")
-        element.scale(500, 500)
-        element.setPosition(100, 100)
+        element = MapElement("taxi_assets/emptyGrid.png")
+        element.scale(SCREEN_WIDTH, SCREEN_HEIGHT)
+        element.setPosition(-15, -15)
 
         self.all_sprites.add(element)
 
-    def drawGrid(self, mapArray):
+    def drawGrid(self, state):
         self.freezeScreen = True
-        self.xPosition = 0
-        self.yPosition = 0
-        self.houseCount = 0
+        self.xPosition = 85
+        self.yPosition = 90
         self.all_sprites.empty()
         self.addBackgroundSprite()
-
-        for i in range(len(mapArray)):
-            for j in range(len(mapArray[i])):
-
+        
+        taxiRow, taxiCol, passIndex, destIndex = map(int, state)
+        
+        for i in range(5):
+            for j in range(5):
                 # print(mapArray[i][j], self.xPosition, self.yPosition, end=" ")
-
-                if mapArray[i][j] == "#":
-                    if i == 0 or i == 6 or j == 0 or j == 6:
-                        element = MapElement("taxi_assets/brick_wall.png")
-                        element.scale(100, 100)
-                        element.setPosition(self.xPosition, self.yPosition)
-                    else:
-                        assetPath = self.houseList[self.houseCount % len(
-                            self.houseList)]
-                        element = MapElement(assetPath)
-                        element.scale(80, 80)
-                        element.setPosition(
-                            self.xPosition + 12, self.yPosition + 7)
-                        self.houseCount += 1
-                    self.all_sprites.add(element)
-
-                if mapArray[i][j] == "T":
+                if i == taxiRow and j == taxiCol:
                     element = MapElement("taxi_assets/taxiCar.png")
-                    element.setPosition(self.xPosition + 10, self.yPosition)
-                    element.scale(90, 90)
+                    element.scale(SPRITE_WIDTH, SPRITE_HEIGHT)
+                    element.setPosition(self.xPosition - 10, self.yPosition - 15)
                     self.all_sprites.add(element)
-
-                if mapArray[i][j] == "S":
-                    if val == 1:
-                        element = MapElement("taxi_assets/samirMlm.png")
-                    else:
-                        element = MapElement("taxi_assets/customer.png")
-                    element.setPosition(self.xPosition + 13,
-                                        self.yPosition + 13)
-                    element.scale(70, 70)
+                elif i == LOCS[passIndex][0] and j == LOCS[passIndex][1]:
+                    element = MapElement("taxi_assets/samirMlm.png")
+                    element.scale(SPRITE_WIDTH, SPRITE_HEIGHT)
+                    element.setPosition(self.xPosition, self.yPosition)
                     self.all_sprites.add(element)
-
-                if mapArray[i][j] == "F":
+                elif i == LOCS[destIndex][0] and j == LOCS[destIndex][1]:
                     element = MapElement("taxi_assets/destination.png")
-                    element.setPosition(self.xPosition + 23,
-                                        self.yPosition + 12)
-                    element.scale(70, 70)
+                    element.scale(SPRITE_WIDTH, SPRITE_HEIGHT)
+                    element.setPosition(self.xPosition + 10, self.yPosition)
                     self.all_sprites.add(element)
-
-                self.xPosition = self.xPosition + 100
-            self.xPosition = 0
+                
+                self.xPosition = self.xPosition + 90
+            self.xPosition = 100
             self.yPosition = self.yPosition + 100
         self.freezeScreen = False
         # print()
@@ -159,9 +131,12 @@ class GameGraphics:
 
             if self.freezeScreen:  # if sprites are being calculated, don't draw yet
                 continue
-
+            
+            state = self.agent.make_move()
+            self.drawGrid(state)
+            
             # Fill the screen with black
-            self.screen.fill((128, 128, 128))
+            self.screen.fill((133, 131, 131))
 
             # Draw entities on the screen
             for entity in self.all_sprites:
@@ -175,7 +150,6 @@ class GameGraphics:
 
 if __name__ == "__main__":
     graphics = GameGraphics()
-    graphics.drawGrid(mapArray)
-    thread = Thread(target=graphics.activateScreen)
-    thread.start()
+    # graphics.drawGrid("2201")  # taxi i, taxi j, pass indx, dest index
+    graphics.activateScreen()
     print("it works")
