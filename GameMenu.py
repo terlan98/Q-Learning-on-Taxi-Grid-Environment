@@ -35,7 +35,7 @@ clock = None
 
 
 def train_AI(test=False):
-    GameGraphics().activateScreen(num_rounds=7)
+    GameGraphics().activateScreen(num_rounds=10)
     exit()
 
 
