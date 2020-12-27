@@ -22,8 +22,6 @@ from pygame.locals import (
 
 from Agent import Agent, env
 
-LOCS = [(0, 0), (0, 4), (4, 0), (4, 3)]
-
 
 class MapElement(pygame.sprite.Sprite):
     def __init__(self, imagePath):
@@ -48,6 +46,10 @@ SPRITE_HEIGHT = 70
 
 val = randint(1, 3)
 
+LOCS = [(0, 0), (0, 4), (4, 0), (4, 3)]
+ACTIONS = ['taxiCarSOUTH.png', 'taxiCarNORTH.png',
+           'taxiCarEAST.png', 'taxiCarWEST.png']
+
 
 class GameGraphics:
 
@@ -66,6 +68,8 @@ class GameGraphics:
     xPosition = 0
     yPosition = 0
 
+    lastTaxiImage = "taxiCarNORTH.png"
+
     def __init__(self):
         # Initialize pygame
         self.agent = Agent.train(num_epochs=100000)
@@ -82,11 +86,11 @@ class GameGraphics:
     def addBackgroundSprite(self):
         element = MapElement("taxi_assets/emptyGrid.png")
         element.scale(SCREEN_WIDTH, SCREEN_HEIGHT)
-        element.setPosition(-15, -15)
+        element.setPosition(0, 0)
 
         self.all_sprites.add(element)
 
-    def drawGrid(self, state):
+    def drawGrid(self, state, last_action):
         # self.freezeScreen = True
         self.xPosition = 85
         self.yPosition = 90
@@ -100,25 +104,34 @@ class GameGraphics:
                 # print(mapArray[i][j], self.xPosition, self.yPosition, end=" ")
 
                 if i == taxiRow and j == taxiCol:
-                    element = MapElement("taxi_assets/taxiCarNORTH.png")
+                    if last_action in range(4):
+                        element = MapElement(
+                            "taxi_assets/" + ACTIONS[last_action])
+                        self.lastTaxiImage = ACTIONS[last_action]
+                    else:
+                        element = MapElement(
+                            "taxi_assets/" + self.lastTaxiImage)
+
                     element.scale(SPRITE_WIDTH, SPRITE_HEIGHT)
-                    element.setPosition(self.xPosition - 10,
-                                        self.yPosition - 15)
+                    element.setPosition(self.xPosition, self.yPosition)
                     self.all_sprites.add(element)
                 elif passIndex != 4 and i == LOCS[passIndex][0] and j == LOCS[passIndex][1]:
-                    element = MapElement("taxi_assets/samirMlm.png")
+                    if val == 1:
+                        element = MapElement("taxi_assets/customer.png")
+                    else:
+                        element = MapElement("taxi_assets/samirMlm.png")
                     element.scale(SPRITE_WIDTH, SPRITE_HEIGHT)
                     element.setPosition(self.xPosition, self.yPosition)
                     self.all_sprites.add(element)
                 elif i == LOCS[destIndex][0] and j == LOCS[destIndex][1]:
                     element = MapElement("taxi_assets/destination.png")
                     element.scale(SPRITE_WIDTH, SPRITE_HEIGHT)
-                    element.setPosition(self.xPosition + 10, self.yPosition)
+                    element.setPosition(self.xPosition, self.yPosition)
                     self.all_sprites.add(element)
 
-                self.xPosition = self.xPosition + 90
-            self.xPosition = 100
-            self.yPosition = self.yPosition + 100
+                self.xPosition = self.xPosition + SPRITE_WIDTH * 1.3
+            self.xPosition = 85
+            self.yPosition = self.yPosition + SPRITE_HEIGHT * 1.3
 
     def activateScreen(self, num_rounds):
         while num_rounds:
@@ -130,8 +143,8 @@ class GameGraphics:
                     elif event.type == QUIT:
                         self.running = False
 
-                state = self.agent.make_move()
-                self.drawGrid(state)
+                state, last_action = self.agent.make_move()
+                self.drawGrid(state, last_action)
 
                 # Fill the screen with black
                 self.screen.fill((133, 131, 131))
@@ -142,7 +155,7 @@ class GameGraphics:
 
                 # Update the display
                 pygame.display.flip()
-                self.clock.tick(3)
+                self.clock.tick(2.5)
 
             self.agent.cur_state = env.reset()
             self.agent.done = False
@@ -152,4 +165,4 @@ class GameGraphics:
 if __name__ == "__main__":
     graphics = GameGraphics()
     # graphics.drawGrid("2201")  # taxi i, taxi j, pass indx, dest index
-    graphics.activateScreen(num_rounds=10)
+    graphics.activateScreen(num_rounds=20)

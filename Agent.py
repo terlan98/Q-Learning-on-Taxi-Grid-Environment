@@ -50,7 +50,7 @@ class Agent:
         self.cur_state = next_state
         self.done = done
 
-        return list(env.decode(self.cur_state))
+        return list(env.decode(self.cur_state)), action
 
     def get_argmax_q(self):
         action_vals = self.get_q_values(self.cur_state)
