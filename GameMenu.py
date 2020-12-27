@@ -21,16 +21,14 @@ pic3 = "loading.png"
 FPS = 60.0
 WINDOW_SIZE = (SCREEN_WIDTH, SCREEN_HEIGHT)
 
+global DIFFICULTY
+
+DIFFICULTY = [3]
+
 sound = None  # type: pygame_menu.sound.Sound
 surface = None  # type: pygame.Surface
 main_menu = None  # type: pygame_menu.Menu
 clock = None
-
-
-def train_AI(test=False):
-    GameGraphics().activateScreen(num_rounds=10)
-    exit()
-
 
 COLORS = [(0, 0, 0),
           (100, 131, 147),
@@ -44,6 +42,13 @@ COLORS = [(0, 0, 0),
           (31, 92, 175),
           (255, 255, 255)]
 
+def change_difficulty(value, difficulty):
+    selected, index = value
+    DIFFICULTY[0] = difficulty
+    
+def train_AI(test=False):
+    GameGraphics().activateScreen(num_rounds=int(DIFFICULTY[0]))
+    exit()
 
 def main(test=False):
     # -------------------------------------------------------------------------
@@ -103,7 +108,6 @@ def main(test=False):
     play_menu = pygame_menu.Menu(
         height=WINDOW_SIZE[1],
         onclose=pygame_menu.events.DISABLE_CLOSE,
-        # onclose=pygame_menu.events.EXIT,
         theme=play_theme,
         title='Play Menu',
         width=WINDOW_SIZE[0],
@@ -128,12 +132,28 @@ def main(test=False):
                          font_size=50,
                          )
     play_menu.add_vertical_margin(20)
-
-    play_menu.add_button('Return',
-                         pygame_menu.events.BACK,
-                         font_name=pygame_menu.font.FONT_FRANCHISE,
-                         font_size=50)
+    
+    play_menu.add_selector('# of Iterations ',
+                           [('3', 3),
+                            ('5', 5),
+                            ('7', 7),
+                            ('9', 9),
+                            ('11', 11),
+                            ('13', 13),
+                            ('15', 15),
+                            ('20', 20),
+                            ('100', 100)],
+                           onchange=change_difficulty,
+                           font_name=pygame_menu.font.FONT_FRANCHISE,
+                           font_size=40,
+                           selector_id='select_difficulty')
     play_menu.add_vertical_margin(20)
+
+    # play_menu.add_button('Return',
+    #                      pygame_menu.events.BACK,
+    #                      font_name=pygame_menu.font.FONT_FRANCHISE,
+    #                      font_size=50)
+    # play_menu.add_vertical_margin(20)
 
     # -------------------------------------------------------------------------
     # Create menus:About
